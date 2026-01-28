@@ -1,0 +1,53 @@
+# 环境变量文件
+.env
+
+# IDE配置文件
+.idea/
+.vscode/
+*.iml
+
+# 构建产物
+target/
+build/
+
+# 依赖文件
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# 日志文件
+logs/
+*.log
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
+
+# 数据库文件
+*.db
+*.sqlite
+
+# Maven本地仓库
+.mvn/
+
+# Gradle文件
+.gradle/
+gradle-wrapper.jar
+
+# Node.js文件
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# 测试报告
+coverage/

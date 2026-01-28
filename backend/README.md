@@ -1,0 +1,1 @@
+MAIGEN父模块，pom文件中需要包含子模块所需公共赖，比如spring-boot,lombok等，子模块中不需要重复引入。

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maigen.api.mapper.CommunityUnlockMapper">
+
+    <resultMap id="BaseResultMap" type="com.maigen.api.entity.CommunityUnlock">
+            <id property="id" column="id" />
+            <result property="user_id" column="user_id" />
+            <result property="community_id" column="community_id" />
+            <result property="unlock_at" column="unlock_at" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,community_id,unlock_at
+    </sql>
+</mapper>
