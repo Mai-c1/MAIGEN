@@ -222,9 +222,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (StrUtil.isNotBlank(dto.getAvatar())) {
             user.setAvatar(dto.getAvatar());
         }
-        if (dto.getBio() != null) { // 允许置空
-            user.setBio(dto.getBio());
-        }
 
         user.setUpdatedAt(LocalDateTime.now());
         this.updateById(user);

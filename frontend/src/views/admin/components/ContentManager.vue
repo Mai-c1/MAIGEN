@@ -242,8 +242,8 @@ onMounted(fetchData);
 
 <style scoped>
 .custom-radio-group :deep(.arco-radio-button) {
-  background: rgba(var(--mg-bg-2-rgb), 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--mg-bg-1);
+  border: 1px solid var(--mg-border);
 }
 
 .category-item {
@@ -253,14 +253,14 @@ onMounted(fetchData);
   padding: 12px 16px;
   border-radius: 12px;
   margin-bottom: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid transparent;
+  background: var(--mg-bg-card);
+  border: 1px solid var(--mg-border);
   transition: all 0.2s;
 }
 
 .category-item:hover {
-  background: rgba(var(--mg-primary-rgb), 0.05);
-  border-color: rgba(var(--mg-primary-rgb), 0.1);
+  background: var(--mg-bg-1);
+  border-color: var(--mg-primary);
 }
 
 :deep(.minimal-drawer .arco-drawer-content) {

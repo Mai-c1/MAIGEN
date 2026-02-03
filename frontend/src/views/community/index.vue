@@ -65,7 +65,7 @@
               {{ post.title }} - {{ post.categoryName }}
             </p>
             <!-- 资源预览卡片 -->
-            <div class="resource-preview mb-4 p-4 rounded-lg border border-[var(--mg-text-3)]/10 bg-black/5 flex justify-between items-center">
+            <div class="resource-preview mb-4 p-4 rounded-lg border border-[var(--mg-border)] bg-[var(--mg-bg-1)] flex justify-between items-center">
               <div class="flex items-center gap-3">
                 <div class="p-2 bg-primary/10 rounded">
                   <icon-file-pdf class="text-primary text-xl" />
@@ -80,7 +80,7 @@
             </a-button>
           </div>
           <!-- 互动操作栏 -->
-          <div class="flex justify-between max-w-sm text-gray-500">
+          <div class="flex justify-between max-w-sm text-[var(--mg-text-3)]">
             <span class="flex items-center gap-2 hover:text-blue-400 transition-colors cursor-pointer group" @click.stop>
               <div class="p-2 rounded-full group-hover:bg-blue-400/10"><icon-message /></div>
               0
@@ -101,7 +101,7 @@
         </div>
       </div>
       <template v-if="postList.length === 0 && !loading">
-        <div class="py-20 text-center text-gray-500">暂无社区动态</div>
+        <div class="py-20 text-center text-[var(--mg-text-3)]">暂无社区动态</div>
       </template>
     </a-space>
   </div>
@@ -193,15 +193,16 @@ onMounted(() => {
 }
 
 .post-card {
-  background: var(--color-bg-2);
+  background: var(--mg-bg-card);
   border-radius: 16px;
+  border: 1px solid var(--mg-border);
 }
 
 .custom-textarea :deep(.arco-textarea) {
   background: transparent;
   border: none;
   font-size: 1.1rem;
-  color: #fff;
+  color: var(--mg-text-1);
 }
 
 .custom-textarea :deep(.arco-textarea):focus {
@@ -210,7 +211,7 @@ onMounted(() => {
 }
 
 .post-item {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--mg-border);
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -226,6 +227,6 @@ onMounted(() => {
 }
 
 .resource-preview:hover {
-  background-color: rgba(22, 93, 255, 0.05);
+  background-color: var(--mg-bg-2);
 }
 </style>

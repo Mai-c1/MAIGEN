@@ -96,7 +96,7 @@
               </div>
             </div>
             
-            <div class="mt-8 flex items-center justify-center gap-8 border-t border-white/5 pt-6">
+            <div class="mt-8 flex items-center justify-center gap-8 border-t border-[var(--mg-border)] pt-6">
               <div class="flex items-center gap-2 text-[var(--mg-text-3)] text-sm">
                 <icon-check-circle class="text-green-500" /> 多样性覆盖
               </div>
@@ -152,12 +152,12 @@
               <p class="text-[var(--mg-text-2)]">请核对以下核心参数，确认无误后提交</p>
             </div>
             
-            <div class="bg-white/5 rounded-2xl p-6 text-left space-y-4 mb-8">
-              <div class="flex justify-between border-b border-white/5 pb-2">
+            <div class="bg-[var(--mg-bg-1)] rounded-2xl p-6 text-left space-y-4 mb-8">
+              <div class="flex justify-between border-b border-[var(--mg-border)] pb-2">
                 <span class="text-[var(--mg-text-3)]">题目名称</span>
                 <span class="text-[var(--mg-text-1)] font-medium">{{ form.title }}</span>
               </div>
-              <div class="flex justify-between border-b border-white/5 pb-2">
+              <div class="flex justify-between border-b border-[var(--mg-border)] pb-2">
                 <span class="text-[var(--mg-text-3)]">测试策略</span>
                 <div class="flex flex-wrap gap-2 justify-end max-w-[70%]">
                   <a-tag v-for="id in form.strategyIds" :key="id" color="arcoblue" size="small" class="rounded-md">
@@ -166,7 +166,7 @@
                   </a-tag>
                 </div>
               </div>
-              <div class="flex justify-between border-b border-white/5 pb-2">
+              <div class="flex justify-between border-b border-[var(--mg-border)] pb-2">
                 <span class="text-[var(--mg-text-3)]">测试点数量</span>
                 <span class="text-[var(--mg-text-1)]">{{ form.targetCases }} 个</span>
               </div>
@@ -391,7 +391,7 @@ const handleSubmit = async () => {
 }
 
 .editor-wrapper {
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--mg-border);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -418,8 +418,8 @@ const handleSubmit = async () => {
   align-items: center;
   gap: 16px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--mg-bg-card);
+  border: 1px solid var(--mg-border);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -428,7 +428,7 @@ const handleSubmit = async () => {
 }
 
 .strategy-card:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--mg-bg-1);
   border-color: var(--mg-primary);
   transform: translateY(-2px);
 }
@@ -445,7 +445,7 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--mg-bg-1);
   border-radius: 12px;
   color: var(--mg-text-2);
   font-size: 24px;
@@ -487,7 +487,7 @@ const handleSubmit = async () => {
 .checkbox-placeholder {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--mg-border);
   border-radius: 50%;
 }
 
@@ -501,7 +501,7 @@ const handleSubmit = async () => {
 }
 
 :deep(.arco-steps-icon) {
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  background-color: var(--mg-bg-1) !important;
   color: var(--mg-text-3) !important;
 }
 

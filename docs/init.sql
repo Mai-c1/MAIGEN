@@ -306,71 +306,101 @@ CREATE TABLE IF NOT EXISTS `operation_log` (
 
 -- 1. 初始角色
 INSERT INTO `role` (`name`, `description`) VALUES
-('普通用户', '系统默认角色，拥有基础权限'),
-('管理员', '系统管理员，拥有所有权限')
+('user', '系统默认角色，拥有基础权限'),
+('admin', '系统管理员，拥有所有权限')
 ON DUPLICATE KEY UPDATE `description` = VALUES(`description`);
 
 -- 2. 初始权限
 INSERT INTO `permission` (`code`, `name`, `description`) VALUES
--- 用户管理权限
-('user:view', '查看用户', '查看用户信息'),
+-- 管理员入口
+('admin:dashboard', '管理后台', '进入管理后台主页'),
+
+-- 用户管理 (User)
+('user:view', '查看用户', '查看用户信息列表'),
 ('user:create', '创建用户', '创建新用户'),
 ('user:edit', '编辑用户', '编辑用户信息'),
-('user:delete', '删除用户', '删除用户'),
-('user:disable', '禁用用户', '禁用/启用用户'),
-('user:reset-password', '重置密码', '重置用户密码'),
-('user:assign-role', '分配角色', '为用户分配角色'),
-('user:view-points', '查看积分', '查看用户积分'),
-('user:edit-points', '编辑积分', '修改用户积分'),
--- 任务管理权限
-('task:view', '查看任务', '查看任务信息'),
-('task:create', '创建任务', '创建新任务'),
-('task:edit', '编辑任务', '编辑任务信息'),
-('task:delete', '删除任务', '删除任务'),
-('task:cancel', '取消任务', '取消执行中的任务'),
-('task:retry', '重试任务', '重试失败的任务'),
-('task:view-log', '查看任务日志', '查看任务执行日志'),
-('task:view-resource', '查看任务资源', '查看任务使用的资源'),
--- 社区管理权限
-('community:view', '查看社区内容', '查看社区分享的内容'),
-('community:share', '分享社区内容', '分享内容到社区'),
-('community:download', '下载社区内容', '下载社区分享的内容'),
-('community:approve', '审核社区内容', '审核社区分享的内容'),
-('community:delete', '删除社区内容', '删除社区分享的内容'),
-('community:view-reward', '查看社区奖励', '查看社区分享的奖励'),
--- 系统管理权限
-('system:config', '系统配置', '修改系统配置'),
-('system:view-log', '查看系统日志', '查看系统运行日志'),
-('system:view-resource', '查看系统资源', '查看系统资源使用情况'),
-('system:manage-role', '管理角色', '创建/编辑/删除角色'),
-('system:manage-permission', '管理权限', '分配权限'),
-('system:data-statistics', '数据统计', '查看系统数据统计'),
-('system:backup', '数据备份', '备份系统数据'),
-('system:restore', '数据恢复', '恢复系统数据'),
--- 资源管理权限
-('resource:view', '查看资源', '查看系统资源'),
-('resource:delete', '删除资源', '删除系统资源'),
-('resource:manage-storage', '管理存储', '管理系统存储')
+('user:delete', '删除用户', '删除单个用户'),
+('user:batch-delete', '批量删除用户', '批量删除多个用户'),
+('user:status:update', '状态管理', '禁用/启用用户状态'),
+('user:password:reset', '重置密码', '重置用户登录密码'),
+('user:role:assign', '分配角色', '为用户分配系统角色'),
+('user:points:view', '查看积分', '查看用户积分余额'),
+('user:points:edit', '手动调账', '人工修改用户积分'),
+
+-- 任务管理 (Task)
+('task:view', '查看任务', '查看生成任务列表/详情'),
+('task:create', '创建任务', '创建新的数据生成任务'),
+('task:edit', '编辑任务', '修改任务执行参数'),
+('task:delete', '删除任务', '删除任务记录'),
+('task:batch-delete', '批量删除任务', '批量删除多条任务'),
+('task:cancel', '取消任务', '中止正在运行的任务'),
+('task:retry', '重试任务', '重试已失败的任务'),
+('task:export', '导出数据', '导出生成的测试数据包'),
+('task:log:view', '查看日志', '查看任务运行详细日志'),
+('task:resource:view', '查看资源', '查看任务占用的沙箱资源'),
+
+-- AI 治理 (AI)
+('ai:model:view', '模型查看', '查看已接入的 AI 模型列表'),
+('ai:model:manage', '模型管理', '管理 AI 模型接入配置'),
+('ai:prompt:view', '提示词查看', '查看内置 Prompt 模板'),
+('ai:prompt:manage', '提示词管理', '编辑与发布 Prompt 策略'),
+('ai:usage:view', '消耗统计', '查看 AI Token 消耗报告'),
+
+-- 社区生态 (Community)
+('community:view', '内容查看', '浏览广场分享内容'),
+('community:share', '内容分享', '发布题目与数据到社区'),
+('community:unlock', '内容解锁', '消耗积分解锁社区资源'),
+('community:approve', '内容审核', '审核用户发布的内容'),
+('community:delete', '内容删除', '删除违规分享内容'),
+('community:comment:create', '发表评论', '在社区内容下评论'),
+('community:comment:delete', '删除评论', '管理社区评论内容'),
+('community:report:view', '查看举报', '查看社区举报列表'),
+('community:report:handle', '处理举报', '处理违规内容举报'),
+('community:tag:manage', '标签管理', '管理社区内容标签'),
+
+-- 财务管理 (Points)
+('points:record:view', '账务流水', '查看全站积分变动明细'),
+('points:rule:manage', '积分规则', '配置积分获取与消耗规则'),
+
+-- 系统运维 (System)
+('system:config:view', '查看配置', '查看系统运行参数'),
+('system:config:edit', '修改配置', '修改系统全局配置'),
+('system:role:view', '查看角色', '查看系统角色定义'),
+('system:role:manage', '角色管理', '增删改系统角色及权限'),
+('system:permission:view', '查看权限', '查看系统权限码定义'),
+('system:log:operation', '操作审计', '查看系统操作审计日志'),
+('system:log:login', '登录审计', '查看用户登录历史'),
+('system:monitor:server', '性能监控', '查看服务器实时运行状态'),
+('system:monitor:queue', '队列监控', '监控消息队列堆积情况'),
+('system:notice:publish', '发布通知', '向全站用户发布通知公告'),
+('system:backup', '数据备份', '手动执行数据库备份'),
+('system:restore', '数据恢复', '从备份中恢复系统数据'),
+
+-- 资源管理 (Resource)
+('resource:view', '查看资源', '浏览系统存储中的文件'),
+('resource:delete', '删除资源', '彻底删除存储中的物理文件'),
+('resource:storage:manage', '存储管理', '管理 MinIO/本地存储配置')
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `description` = VALUES(`description`);
 
 -- 3. 角色权限关联
 -- 普通用户权限
 INSERT INTO `role_permission` (`role_id`, `permission_id`) VALUES
-((SELECT `id` FROM `role` WHERE `name` = '普通用户'), (SELECT `id` FROM `permission` WHERE `code` = 'user:view')),
-((SELECT `id` FROM `role` WHERE `name` = '普通用户'), (SELECT `id` FROM `permission` WHERE `code` = 'task:view')),
-((SELECT `id` FROM `role` WHERE `name` = '普通用户'), (SELECT `id` FROM `permission` WHERE `code` = 'task:create')),
-((SELECT `id` FROM `role` WHERE `name` = '普通用户'), (SELECT `id` FROM `permission` WHERE `code` = 'task:edit')),
-((SELECT `id` FROM `role` WHERE `name` = '普通用户'), (SELECT `id` FROM `permission` WHERE `code` = 'task:delete')),
-((SELECT `id` FROM `role` WHERE `name` = '普通用户'), (SELECT `id` FROM `permission` WHERE `code` = 'task:cancel')),
-((SELECT `id` FROM `role` WHERE `name` = '普通用户'), (SELECT `id` FROM `permission` WHERE `code` = 'task:retry')),
-((SELECT `id` FROM `role` WHERE `name` = '普通用户'), (SELECT `id` FROM `permission` WHERE `code` = 'community:view')),
-((SELECT `id` FROM `role` WHERE `name` = '普通用户'), (SELECT `id` FROM `permission` WHERE `code` = 'community:share')),
-((SELECT `id` FROM `role` WHERE `name` = '普通用户'), (SELECT `id` FROM `permission` WHERE `code` = 'community:download'))
+((SELECT `id` FROM `role` WHERE `name` = 'user'), (SELECT `id` FROM `permission` WHERE `code` = 'user:view')),
+((SELECT `id` FROM `role` WHERE `name` = 'user'), (SELECT `id` FROM `permission` WHERE `code` = 'task:view')),
+((SELECT `id` FROM `role` WHERE `name` = 'user'), (SELECT `id` FROM `permission` WHERE `code` = 'task:create')),
+((SELECT `id` FROM `role` WHERE `name` = 'user'), (SELECT `id` FROM `permission` WHERE `code` = 'task:edit')),
+((SELECT `id` FROM `role` WHERE `name` = 'user'), (SELECT `id` FROM `permission` WHERE `code` = 'task:delete')),
+((SELECT `id` FROM `role` WHERE `name` = 'user'), (SELECT `id` FROM `permission` WHERE `code` = 'task:cancel')),
+((SELECT `id` FROM `role` WHERE `name` = 'user'), (SELECT `id` FROM `permission` WHERE `code` = 'task:retry')),
+((SELECT `id` FROM `role` WHERE `name` = 'user'), (SELECT `id` FROM `permission` WHERE `code` = 'community:view')),
+((SELECT `id` FROM `role` WHERE `name` = 'user'), (SELECT `id` FROM `permission` WHERE `code` = 'community:share')),
+((SELECT `id` FROM `role` WHERE `name` = 'user'), (SELECT `id` FROM `permission` WHERE `code` = 'community:unlock')),
+((SELECT `id` FROM `role` WHERE `name` = 'user'), (SELECT `id` FROM `permission` WHERE `code` = 'community:comment:create'))
 ON DUPLICATE KEY UPDATE `role_id` = VALUES(`role_id`), `permission_id` = VALUES(`permission_id`);
 
 -- 管理员权限（所有权限）
 INSERT INTO `role_permission` (`role_id`, `permission_id`)
-SELECT (SELECT `id` FROM `role` WHERE `name` = '管理员'), `id`
+SELECT (SELECT `id` FROM `role` WHERE `name` = 'admin'), `id`
 FROM `permission`
 ON DUPLICATE KEY UPDATE `role_id` = VALUES(`role_id`), `permission_id` = VALUES(`permission_id`);
 

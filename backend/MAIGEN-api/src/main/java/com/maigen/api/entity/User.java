@@ -53,12 +53,6 @@ public class User {
     /**
      * 
      */
-    @TableField(value = "bio")
-    private String bio;
-
-    /**
-     * 
-     */
     @TableField(value = "invitation_code")
     private String invitationCode;
 

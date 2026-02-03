@@ -55,7 +55,7 @@
           <template #extra>
             <a-tag color="green" size="small">C++ 17</a-tag>
           </template>
-          <div class="rounded-2xl overflow-hidden border border-white/5">
+          <div class="rounded-2xl overflow-hidden border border-[var(--mg-border)]">
             <CodeEditor
               :model-value="taskInfo.standardCode"
               mode="c_cpp"
@@ -72,14 +72,14 @@
         <a-card title="执行控制台 (Console)" :bordered="false" class="mb-6 glass-card terminal-card">
           <div class="terminal-content p-4 font-mono text-sm leading-relaxed overflow-y-auto h-[350px]" style="background: var(--mg-terminal-bg);">
             <div v-for="(log, index) in logs" :key="index" class="mb-2 flex gap-3">
-              <span class="text-gray-500 shrink-0">[{{ log.time }}]</span>
+              <span class="text-[var(--mg-text-3)] shrink-0">[{{ log.time }}]</span>
               <span :class="{
                 'text-blue-400': log.type === 'SYSTEM',
                 'text-purple-400': log.type === 'AGENT',
                 'text-yellow-400': log.type === 'SANDBOX',
                 'text-red-400': log.type === 'ERROR'
               }" class="font-bold shrink-0">[{{ log.type }}]</span>
-              <span class="text-gray-300">{{ log.content }}</span>
+              <span class="text-[var(--mg-text-2)]">{{ log.content }}</span>
             </div>
             <div v-if="taskInfo.status < 4" class="flex items-center gap-2 text-blue-400 animate-pulse">
               <icon-sync spin />
@@ -111,7 +111,7 @@
               animation
               class="custom-progress-bar"
             />
-            <div class="mt-4 flex items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/5">
+            <div class="mt-4 flex items-center gap-2 p-3 rounded-xl bg-[var(--mg-bg-1)] border border-[var(--mg-border)]">
               <icon-info-circle class="text-primary/60" />
               <span class="text-[var(--mg-text-3)] text-xs">
                 {{ taskInfo.status < 4 ? '任务正在后台安全沙箱中执行，请稍候...' : '任务已执行完毕，点击右上方按钮可下载结果。' }}
@@ -150,7 +150,7 @@
             <a-descriptions-item label="生成策略">
               <div class="flex flex-wrap gap-1">
                 <a-tag v-for="s in taskInfo.strategies" :key="s" size="small" color="arcoblue" class="rounded-md">{{ s }}</a-tag>
-                <span v-if="!taskInfo.strategies?.length" class="text-gray-500">默认策略</span>
+                <span v-if="!taskInfo.strategies?.length" class="text-[var(--mg-text-3)]">默认策略</span>
               </div>
             </a-descriptions-item>
             <a-descriptions-item label="创建于">
@@ -165,18 +165,18 @@
     <a-modal v-model:visible="shareVisible" title="发布到社区" @before-ok="handleShare" class="glass-modal">
       <a-form :model="shareForm" layout="vertical" class="mt-2">
         <a-form-item label="资源标题" required>
-          <a-input v-model="shareForm.title" placeholder="给你的资源起个吸引人的名字" class="rounded-xl bg-white/5 border-white/10" />
+          <a-input v-model="shareForm.title" placeholder="给你的资源起个吸引人的名字" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]" />
         </a-form-item>
         <a-form-item label="分类" required>
-          <a-select v-model="shareForm.categoryId" placeholder="选择所属分类" class="rounded-xl bg-white/5 border-white/10">
+          <a-select v-model="shareForm.categoryId" placeholder="选择所属分类" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]">
             <a-option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</a-option>
           </a-select>
         </a-form-item>
         <a-form-item label="解锁所需积分" required>
-          <a-input-number v-model="shareForm.points" :min="0" :max="100" placeholder="0-100" class="rounded-xl bg-white/5 border-white/10" />
+          <a-input-number v-model="shareForm.points" :min="0" :max="100" placeholder="0-100" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]" />
         </a-form-item>
         <a-form-item label="标签">
-          <a-input-tag v-model="shareForm.tags" placeholder="输入标签按回车添加" allow-clear class="rounded-xl bg-white/5 border-white/10" />
+          <a-input-tag v-model="shareForm.tags" placeholder="输入标签按回车添加" allow-clear class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -430,8 +430,8 @@ onBeforeUnmount(() => {
 }
 
 .custom-progress-bar :deep(.arco-progress-line-inner) {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--mg-bg-1);
+  border: 1px solid var(--mg-border);
 }
 
 .custom-descriptions :deep(.arco-descriptions-item-label) {
@@ -486,7 +486,7 @@ onBeforeUnmount(() => {
 }
 
 :deep(.arco-card-header) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--mg-border);
   padding: 16px 20px;
 }
 

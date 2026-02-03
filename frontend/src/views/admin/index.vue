@@ -82,8 +82,8 @@ const currentManager = computed(() => {
   transition: all 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
   flex-shrink: 0;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(var(--mg-bg-2-rgb), 0.6);
+  border: 1px solid var(--mg-border);
+  background: var(--mg-bg-card);
   backdrop-filter: blur(20px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
@@ -136,7 +136,7 @@ const currentManager = computed(() => {
   justify-content: center;
   cursor: pointer;
   color: var(--mg-text-3);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--mg-border);
   transition: color 0.2s;
 }
 

@@ -1,5 +1,6 @@
 package com.maigen.api.controller.admin;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -36,6 +37,7 @@ public class ManageUserController {
 
     @GetMapping("/list")
     @Operation(summary = "用户列表")
+    @SaCheckPermission("user:view")
     public SaResult listUsers(PageQuery query, String keyword) {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         if (StringUtils.hasText(keyword)) {
@@ -47,6 +49,7 @@ public class ManageUserController {
     @PostMapping
     @Operation(summary = "新增用户")
     @Log(module = "用户管理", operation = "新增用户")
+    @SaCheckPermission("user:create")
     public SaResult createUser(@RequestBody AdminUserDTO dto) {
         if (!StringUtils.hasText(dto.getUsername()) || !StringUtils.hasText(dto.getPassword())) {
             return SaResult.error("用户名和密码不能为空");
@@ -68,6 +71,7 @@ public class ManageUserController {
     @PutMapping("/{id}")
     @Operation(summary = "更新用户信息")
     @Log(module = "用户管理", operation = "更新用户信息")
+    @SaCheckPermission("user:edit")
     public SaResult updateUser(@PathVariable Long id, @RequestBody AdminUserDTO dto) {
         User user = userService.getById(id);
         if (user == null) return SaResult.error("用户不存在");
@@ -87,6 +91,7 @@ public class ManageUserController {
     @PutMapping("/{id}/status")
     @Operation(summary = "更新用户状态")
     @Log(module = "用户管理", operation = "修改用户状态")
+    @SaCheckPermission("user:status:update")
     public SaResult updateStatus(@PathVariable Long id, @RequestParam Integer status) {
         User user = userService.getById(id);
         if (user == null) return SaResult.error("用户不存在");
@@ -98,6 +103,7 @@ public class ManageUserController {
     @PostMapping("/{id}/points")
     @Operation(summary = "积分调账")
     @Log(module = "用户管理", operation = "积分调账")
+    @SaCheckPermission("user:points:edit")
     public SaResult adjustPoints(@PathVariable Long id, @RequestBody PointsAdjustmentDTO dto) {
         User user = userService.getById(id);
         if (user == null) return SaResult.error("用户不存在");
@@ -109,6 +115,7 @@ public class ManageUserController {
 
     @GetMapping("/invitations")
     @Operation(summary = "邀请记录查询")
+    @SaCheckPermission("user:view")
     public SaResult listInvitations(PageQuery query) {
         return SaResult.data(invitationService.page(query.toMpPage()));
     }

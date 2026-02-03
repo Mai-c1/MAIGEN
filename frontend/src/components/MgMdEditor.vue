@@ -99,12 +99,12 @@ const handleUploadImg = (files: File[], callback: (urls: string[]) => void) => {
   height: 100%;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid var(--color-border-2);
+  border: 1px solid var(--mg-border);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .mg-md-editor-wrapper.dark {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--mg-border);
 }
 
 .mg-md-editor {

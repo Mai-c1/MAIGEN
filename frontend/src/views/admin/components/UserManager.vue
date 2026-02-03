@@ -274,8 +274,8 @@ onMounted(fetchData);
 <style scoped>
 .search-input :deep(.arco-input-wrapper) {
   border-radius: 16px;
-  background: rgba(var(--mg-bg-2-rgb), 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--mg-bg-1);
+  border: 1px solid var(--mg-border);
 }
 
 .drawer-section-title {
@@ -286,7 +286,7 @@ onMounted(fetchData);
   letter-spacing: 1px;
   margin-bottom: 16px;
   padding-bottom: 8px;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  border-bottom: 1px dashed var(--mg-border);
 }
 
 :deep(.minimal-drawer .arco-drawer-content) {

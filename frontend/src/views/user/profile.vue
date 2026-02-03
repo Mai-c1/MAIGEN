@@ -7,7 +7,7 @@
       
       <div class="flex flex-col md:flex-row items-center gap-8 relative z-10">
         <div class="relative group">
-          <a-avatar :size="120" class="shadow-2xl border-4 border-white/10 ring-4 ring-primary/20 transition-transform group-hover:scale-105 duration-500">
+          <a-avatar :size="120" class="shadow-2xl border-4 border-[var(--mg-border)] ring-4 ring-primary/20 transition-transform group-hover:scale-105 duration-500">
             <img 
               v-if="userForm.avatar"
               :key="userForm.avatar"
@@ -69,20 +69,20 @@
                 <a-row :gutter="20">
                   <a-col :span="12">
                     <a-form-item label="显示昵称" required>
-                      <a-input v-model="userForm.nickname" placeholder="设置你的昵称" size="large" class="rounded-xl bg-white/5 border-white/10" />
+                      <a-input v-model="userForm.nickname" placeholder="设置你的昵称" size="large" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]" />
                     </a-form-item>
                   </a-col>
                   <a-col :span="12">
                     <a-form-item label="用户名 (唯一标识)">
-                      <a-input :model-value="userInfo?.username" disabled size="large" class="rounded-xl bg-white/5 border-white/10 opacity-60" />
+                      <a-input :model-value="userInfo?.username" disabled size="large" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)] opacity-60" />
                     </a-form-item>
                   </a-col>
                 </a-row>
                 <a-form-item label="头像 URL">
-                  <a-input v-model="userForm.avatar" placeholder="输入头像 URL 或通过上方按钮上传" size="large" class="rounded-xl bg-white/5 border-white/10" />
+                  <a-input v-model="userForm.avatar" placeholder="输入头像 URL 或通过上方按钮上传" size="large" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]" />
                 </a-form-item>
                 <a-form-item label="个人简介">
-                  <a-textarea v-model="userForm.bio" placeholder="向大家介绍一下自己吧" :auto-size="{ minRows: 3 }" class="rounded-xl bg-white/5 border-white/10" />
+                  <a-textarea v-model="userForm.bio" placeholder="向大家介绍一下自己吧" :auto-size="{ minRows: 3 }" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]" />
                 </a-form-item>
                 <div class="flex justify-end mt-4">
                   <a-button type="primary" :loading="updating" html-type="submit" size="large" class="rounded-xl px-8 shadow-lg shadow-primary/20">
@@ -140,17 +140,17 @@
               </div>
               <a-form :model="passwordForm" layout="vertical" @submit="handleChangePassword">
                 <a-form-item label="当前登录密码" required>
-                  <a-input-password v-model="passwordForm.oldPassword" placeholder="请输入当前正在使用的密码" size="large" class="rounded-xl bg-white/5 border-white/10" />
+                  <a-input-password v-model="passwordForm.oldPassword" placeholder="请输入当前正在使用的密码" size="large" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]" />
                 </a-form-item>
                 <a-row :gutter="20">
                   <a-col :span="12">
                     <a-form-item label="设置新密码" required>
-                      <a-input-password v-model="passwordForm.newPassword" placeholder="建议包含字母与数字" size="large" class="rounded-xl bg-white/5 border-white/10" />
+                      <a-input-password v-model="passwordForm.newPassword" placeholder="建议包含字母与数字" size="large" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]" />
                     </a-form-item>
                   </a-col>
                   <a-col :span="12">
                     <a-form-item label="确认新密码" required>
-                      <a-input-password v-model="passwordForm.confirmPassword" placeholder="再次输入新密码" size="large" class="rounded-xl bg-white/5 border-white/10" />
+                      <a-input-password v-model="passwordForm.confirmPassword" placeholder="再次输入新密码" size="large" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]" />
                     </a-form-item>
                   </a-col>
                 </a-row>
@@ -406,8 +406,8 @@ onMounted(fetchData);
 }
 
 .info-badge {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--mg-bg-1);
+  border: 1px solid var(--mg-border);
   padding: 6px 16px;
   border-radius: 12px;
   display: flex;
@@ -429,8 +429,8 @@ onMounted(fetchData);
 }
 
 .stat-box {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--mg-bg-1);
+  border: 1px solid var(--mg-border);
   padding: 16px;
   border-radius: 20px;
   text-align: center;
@@ -457,7 +457,7 @@ onMounted(fetchData);
 }
 
 :deep(.arco-card-header) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--mg-border);
   padding: 20px 24px;
 }
 
@@ -472,11 +472,12 @@ onMounted(fetchData);
   color: var(--mg-text-3);
   font-size: 12px;
   font-weight: bold;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--mg-border);
 }
 
 .custom-table :deep(.arco-table-td) {
   background: transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--mg-border);
+  opacity: 0.8;
 }
 </style>

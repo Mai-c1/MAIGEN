@@ -7,7 +7,7 @@
       <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-purple-500/10 rounded-full blur-2xl"></div>
       
       <div class="flex items-center gap-6 relative z-10">
-        <a-avatar :size="80" class="shadow-2xl border-4 border-primary/20 ring-4 ring-white/10 transition-transform hover:scale-105 duration-500">
+        <a-avatar :size="80" class="shadow-2xl border-4 border-primary/20 ring-4 border-[var(--mg-border)] transition-transform hover:scale-105 duration-500">
           <img :src="userStore.userInfo?.avatar || 'https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/3ee5f1341c7918341.png~tplv-uwbnlip3yd-webp.webp'" />
         </a-avatar>
         <div>
@@ -64,7 +64,7 @@
             <a-list-item 
               v-for="item in latestTasks" 
               :key="item.taskId" 
-              class="activity-item hover:bg-white/5 transition-colors rounded-xl px-4 cursor-pointer"
+              class="activity-item hover:bg-[var(--mg-bg-1)] transition-colors rounded-xl px-4 cursor-pointer"
               @click="router.push(`/task/detail/${item.taskId}`)"
             >
               <a-list-item-meta
@@ -128,7 +128,7 @@
                   <div 
                     class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
                     :class="[
-                      day.signed ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-white/5 text-[var(--mg-text-3)] border border-white/10',
+                      day.signed ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-[var(--mg-bg-1)] text-[var(--mg-text-3)] border border-[var(--mg-border)]',
                       day.isToday && !day.signed ? 'ring-2 ring-primary ring-offset-2 ring-offset-transparent animate-pulse' : ''
                     ]"
                   >
@@ -164,7 +164,7 @@
     <!-- 积分记录抽屉 -->
     <a-drawer :visible="showRecords" @cancel="showRecords = false" title="积分流水记录" :width="420" :footer="false" class="glass-card">
       <a-list :bordered="false" :loading="recordsLoading">
-        <a-list-item v-for="record in records" :key="record.id" class="border-b border-white/5 last:border-0">
+        <a-list-item v-for="record in records" :key="record.id" class="border-b border-[var(--mg-border)] last:border-0">
           <a-list-item-meta
             :title="record.sourceName"
             :description="record.createdAt"
@@ -390,7 +390,7 @@ onMounted(() => {
 }
 
 :deep(.arco-card-header) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--mg-border);
   padding: 16px 20px;
 }
 

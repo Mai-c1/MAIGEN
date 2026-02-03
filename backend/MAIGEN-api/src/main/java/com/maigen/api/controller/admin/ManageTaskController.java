@@ -1,5 +1,6 @@
 package com.maigen.api.controller.admin;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -26,6 +27,7 @@ public class ManageTaskController {
 
     @GetMapping("/list")
     @Operation(summary = "全站任务列表")
+    @SaCheckPermission("task:view")
     public SaResult listTasks(PageQuery query, String keyword, Integer status) {
         LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
         if (StringUtils.hasText(keyword)) {
@@ -41,6 +43,7 @@ public class ManageTaskController {
     @DeleteMapping("/{id}")
     @Operation(summary = "删除任务")
     @Log(module = "任务管理", operation = "删除任务")
+    @SaCheckPermission("task:delete")
     public SaResult deleteTask(@PathVariable Long id) {
         taskService.removeById(id);
         return SaResult.ok("任务删除成功");
@@ -48,12 +51,14 @@ public class ManageTaskController {
 
     @GetMapping("/strategy/list")
     @Operation(summary = "生成策略列表")
+    @SaCheckPermission("ai:prompt:view")
     public SaResult listStrategies() {
         return SaResult.data(taskStrategyService.list());
     }
 
     @PostMapping("/strategy")
     @Operation(summary = "新增生成策略")
+    @SaCheckPermission("ai:prompt:manage")
     public SaResult createStrategy(@RequestBody TaskStrategy strategy) {
         taskStrategyService.save(strategy);
         return SaResult.ok("创建成功");
@@ -61,6 +66,7 @@ public class ManageTaskController {
 
     @PutMapping("/strategy")
     @Operation(summary = "更新生成策略")
+    @SaCheckPermission("ai:prompt:manage")
     public SaResult updateStrategy(@RequestBody TaskStrategy strategy) {
         taskStrategyService.updateById(strategy);
         return SaResult.ok("更新成功");
@@ -68,6 +74,7 @@ public class ManageTaskController {
 
     @DeleteMapping("/strategy/{id}")
     @Operation(summary = "删除生成策略")
+    @SaCheckPermission("ai:prompt:manage")
     public SaResult deleteStrategy(@PathVariable Long id) {
         taskStrategyService.removeById(id);
         return SaResult.ok("删除成功");

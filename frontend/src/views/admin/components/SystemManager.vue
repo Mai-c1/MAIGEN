@@ -300,8 +300,8 @@ onMounted(() => {
 
 <style scoped>
 :deep(.custom-tabs .arco-tabs-nav-type-rounded .arco-tabs-nav-tab) {
-  background: rgba(var(--mg-bg-2-rgb), 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--mg-bg-1);
+  border: 1px solid var(--mg-border);
   padding: 4px;
   border-radius: 14px;
 }
@@ -320,7 +320,7 @@ onMounted(() => {
 }
 
 .md-editor-container {
-  border: 1px solid var(--color-border-2);
+  border: 1px solid var(--mg-border);
   border-radius: 8px;
   overflow: hidden;
 }

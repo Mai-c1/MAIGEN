@@ -1,5 +1,6 @@
 package com.maigen.api.controller.admin;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -35,6 +36,7 @@ public class ManageContentController {
 
     @GetMapping("/list")
     @Operation(summary = "社区内容列表")
+    @SaCheckPermission("community:view")
     public SaResult listContent(PageQuery query, String keyword, Integer status) {
         LambdaQueryWrapper<CommunityContent> wrapper = new LambdaQueryWrapper<>();
         if (StringUtils.hasText(keyword)) {
@@ -49,6 +51,7 @@ public class ManageContentController {
     @PutMapping("/{id}/audit")
     @Operation(summary = "内容审核")
     @Log(module = "内容管理", operation = "审核内容")
+    @SaCheckPermission("community:approve")
     public SaResult auditContent(@PathVariable Long id, @RequestBody AuditDTO dto) {
         CommunityContent content = communityContentService.getById(id);
         if (content == null) return SaResult.error("内容不存在");
@@ -74,6 +77,7 @@ public class ManageContentController {
     @DeleteMapping("/{id}")
     @Operation(summary = "删除内容")
     @Log(module = "内容管理", operation = "删除内容")
+    @SaCheckPermission("community:delete")
     public SaResult deleteContent(@PathVariable Long id) {
         communityContentService.removeById(id);
         return SaResult.ok("删除成功");
@@ -83,12 +87,14 @@ public class ManageContentController {
 
     @GetMapping("/category/list")
     @Operation(summary = "分类列表")
+    @SaCheckPermission("community:tag:manage")
     public SaResult listCategories() {
         return SaResult.data(categoryService.list());
     }
 
     @PostMapping("/category")
     @Operation(summary = "新增分类")
+    @SaCheckPermission("community:tag:manage")
     public SaResult createCategory(@RequestBody Category category) {
         categoryService.save(category);
         return SaResult.ok("创建成功");
@@ -96,6 +102,7 @@ public class ManageContentController {
 
     @PutMapping("/category")
     @Operation(summary = "更新分类")
+    @SaCheckPermission("community:tag:manage")
     public SaResult updateCategory(@RequestBody Category category) {
         categoryService.updateById(category);
         return SaResult.ok("更新成功");
@@ -103,6 +110,7 @@ public class ManageContentController {
 
     @DeleteMapping("/category/{id}")
     @Operation(summary = "删除分类")
+    @SaCheckPermission("community:tag:manage")
     public SaResult deleteCategory(@PathVariable Long id) {
         categoryService.removeById(id);
         return SaResult.ok("删除成功");
@@ -112,12 +120,14 @@ public class ManageContentController {
 
     @GetMapping("/tag/list")
     @Operation(summary = "标签列表")
+    @SaCheckPermission("community:tag:manage")
     public SaResult listTags() {
         return SaResult.data(tagService.list());
     }
 
     @PostMapping("/tag")
     @Operation(summary = "新增标签")
+    @SaCheckPermission("community:tag:manage")
     public SaResult createTag(@RequestBody Tag tag) {
         tagService.save(tag);
         return SaResult.ok("创建成功");
@@ -125,6 +135,7 @@ public class ManageContentController {
 
     @DeleteMapping("/tag/{id}")
     @Operation(summary = "删除标签")
+    @SaCheckPermission("community:tag:manage")
     public SaResult deleteTag(@PathVariable Long id) {
         tagService.removeById(id);
         return SaResult.ok("删除成功");

@@ -117,11 +117,11 @@
         </div>
         
         <div class="grid grid-cols-2 gap-4">
-          <div class="p-3 bg-white/5 rounded-xl border border-white/5">
+          <div class="p-3 bg-[var(--mg-bg-1)] rounded-xl border border-[var(--mg-border)]">
             <div class="text-[10px] text-[var(--mg-text-3)] mb-1 uppercase">任务 ID</div>
             <div class="font-mono text-sm text-[var(--mg-text-2)]">{{ detailDrawer.record.id }}</div>
           </div>
-          <div class="p-3 bg-white/5 rounded-xl border border-white/5">
+          <div class="p-3 bg-[var(--mg-bg-1)] rounded-xl border border-[var(--mg-border)]">
             <div class="text-[10px] text-[var(--mg-text-3)] mb-1 uppercase">所属用户 ID</div>
             <div class="font-mono text-sm text-[var(--mg-text-2)]">{{ detailDrawer.record.userId }}</div>
           </div>
@@ -129,7 +129,7 @@
 
         <div>
           <div class="drawer-section-title">任务需求描述</div>
-          <div class="text-sm text-[var(--mg-text-2)] bg-white/5 p-4 rounded-xl border border-white/5 whitespace-pre-wrap leading-relaxed">
+          <div class="text-sm text-[var(--mg-text-2)] bg-[var(--mg-bg-1)] p-4 rounded-xl border border-[var(--mg-border)] whitespace-pre-wrap leading-relaxed">
             {{ detailDrawer.record.problemDescription }}
           </div>
         </div>
@@ -256,8 +256,8 @@ onMounted(fetchData);
 <style scoped>
 .search-input :deep(.arco-input-wrapper) {
   border-radius: 16px;
-  background: rgba(var(--mg-bg-2-rgb), 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--mg-bg-1);
+  border: 1px solid var(--mg-border);
 }
 
 .drawer-section-title {
@@ -276,7 +276,7 @@ onMounted(fetchData);
   content: "";
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--mg-border);
 }
 
 :deep(.minimal-drawer .arco-drawer-content) {

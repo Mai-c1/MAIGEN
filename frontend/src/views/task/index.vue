@@ -47,7 +47,7 @@
           <a-table-column title="操作" align="right">
             <template #cell="{ record }">
               <a-space>
-                <a-button type="text" size="small" class="rounded-lg hover:bg-white/5" @click="router.push(`/task/detail/${record.taskId}`)">详情</a-button>
+                <a-button type="text" size="small" class="rounded-lg hover:bg-[var(--mg-bg-1)]" @click="router.push(`/task/detail/${record.taskId}`)">详情</a-button>
                 <a-button v-if="record.status === 4" type="text" status="success" size="small" class="rounded-lg hover:bg-green-500/10" @click="openShareModal(record)">分享</a-button>
                 <a-button v-if="record.status === 5" type="text" status="danger" size="small" class="rounded-lg hover:bg-red-500/10" @click="handleRetry(record.taskId)">重试</a-button>
               </a-space>
@@ -61,18 +61,18 @@
     <a-modal v-model:visible="shareVisible" title="发布到社区" @before-ok="handleShare" class="glass-modal">
       <a-form :model="shareForm" layout="vertical" class="mt-2">
         <a-form-item label="资源标题" required>
-          <a-input v-model="shareForm.title" placeholder="给你的资源起个吸引人的名字" class="rounded-xl bg-white/5 border-white/10" />
+          <a-input v-model="shareForm.title" placeholder="给你的资源起个吸引人的名字" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]" />
         </a-form-item>
         <a-form-item label="分类" required>
-          <a-select v-model="shareForm.categoryId" placeholder="选择所属分类" class="rounded-xl bg-white/5 border-white/10">
+          <a-select v-model="shareForm.categoryId" placeholder="选择所属分类" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]">
             <a-option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</a-option>
           </a-select>
         </a-form-item>
         <a-form-item label="解锁所需积分" required>
-          <a-input-number v-model="shareForm.points" :min="0" :max="100" placeholder="0-100" class="rounded-xl bg-white/5 border-white/10" />
+          <a-input-number v-model="shareForm.points" :min="0" :max="100" placeholder="0-100" class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]" />
         </a-form-item>
         <a-form-item label="标签">
-          <a-input-tag v-model="shareForm.tags" placeholder="输入标签按回车添加" allow-clear class="rounded-xl bg-white/5 border-white/10" />
+          <a-input-tag v-model="shareForm.tags" placeholder="输入标签按回车添加" allow-clear class="rounded-xl bg-[var(--mg-bg-1)] border-[var(--mg-border)]" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -87,9 +87,9 @@
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--mg-bg-card);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--mg-border);
 }
 
 :deep(.arco-table) {
@@ -97,23 +97,23 @@
 }
 
 :deep(.arco-table-th) {
-  background: rgba(255, 255, 255, 0.02) !important;
+  background: var(--mg-bg-1) !important;
   color: var(--mg-text-2) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-bottom: 1px solid var(--mg-border) !important;
 }
 
 :deep(.arco-table-td) {
   background: transparent !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+  border-bottom: 1px solid var(--mg-border) !important;
 }
 
 :deep(.arco-table-tr:hover .arco-table-td) {
-  background: rgba(255, 255, 255, 0.02) !important;
+  background: var(--mg-bg-1) !important;
 }
 
 :deep(.arco-pagination-list-item), :deep(.arco-pagination-item) {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: var(--mg-bg-1) !important;
+  border: 1px solid var(--mg-border) !important;
   color: var(--mg-text-2) !important;
 }
 
