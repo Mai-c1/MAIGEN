@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maigen.api.mapper.TaskMapper">
+
+    <resultMap id="BaseResultMap" type="com.maigen.api.entity.Task">
+            <id property="id" column="id" />
+            <result property="userId" column="user_id" />
+            <result property="title" column="title" />
+            <result property="problemDescription" column="problem_description" />
+            <result property="standardCode" column="standard_code" />
+            <result property="testcaseCount" column="testcase_count" />
+            <result property="timeLimit" column="time_limit" />
+            <result property="memoryLimit" column="memory_limit" />
+            <result property="status" column="status" />
+            <result property="progress" column="progress" />
+            <result property="retryCount" column="retry_count" />
+            <result property="errorMessage" column="error_message" />
+            <result property="totalPoints" column="total_points" />
+            <result property="createdAt" column="created_at" />
+            <result property="updatedAt" column="updated_at" />
+            <result property="expiredAt" column="expired_at" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,title,problem_description,standard_code,testcase_count,
+        time_limit,memory_limit,status,progress,retry_count,error_message,
+        total_points,created_at,updated_at,expired_at
+    </sql>
+</mapper>

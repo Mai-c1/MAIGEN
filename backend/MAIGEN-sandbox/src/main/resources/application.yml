@@ -1,0 +1,33 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: MAIGEN-sandbox
+
+  # RabbitMQ 配置 (由 common-rabbitmq 提供)
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+  # Redis 配置 (由 common-redis 提供)
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+
+# go-judge 沙箱配置
+maigen:
+  sandbox:
+    server-url: localhost:5050
+    # 宿主机物理路径，挂载至沙箱 /output/
+    share-data-path: /maigen/share/data
+
+logging:
+  level:
+    com.maigen.sandbox: debug
+    org.springframework.web.reactive.function.client: info

@@ -1,0 +1,2 @@
+com.maigen.common.rabbitmq.util.RabbitMQUtil
+com.maigen.common.rabbitmq.config.RabbitMQConfig

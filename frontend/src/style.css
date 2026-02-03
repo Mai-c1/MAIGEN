@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: var(--mg-primary);
+  --color-primary-hover: var(--mg-primary-hover);
+  --color-bg-dark: #101014;
+  --color-bg-card: var(--mg-bg-card);
+  
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+}
+
+:root {
+  /* Global Primary: Blue */
+  --mg-primary: #165DFF;
+  --mg-primary-rgb: 22, 93, 255;
+  --mg-primary-hover: #4080FF;
+  
+  /* Shared Defaults */
+  --mg-bg-card: rgba(255, 255, 255, 0.8);
+  --mg-text-1: #1D2129;
+  --mg-text-2: #4E5969;
+  --mg-text-3: #86909C;
+  --mg-bg-1: #F2F3F5;
+  --mg-bg-2: #FFFFFF;
+  --mg-terminal-bg: rgba(0, 0, 0, 0.05);
+}
+
+/* Theme: Dark (Deep Black) */
+.theme-dark {
+  --mg-bg-1: #0B0E11;
+  --mg-bg-2: #171B21;
+  --mg-bg-card: rgba(29, 33, 41, 0.6);
+  --mg-text-1: #F2F3F5;
+  --mg-text-2: #C9CDD4;
+  --mg-text-3: #86909C;
+  --mg-terminal-bg: rgba(0, 0, 0, 0.4);
+}
+
+/* Theme: Light (Classic White) */
+.theme-light {
+  --mg-bg-1: #F2F3F5;
+  --mg-bg-2: #FFFFFF;
+  --mg-bg-card: rgba(255, 255, 255, 0.8);
+  --mg-text-1: #1D2129;
+  --mg-text-2: #4E5969;
+  --mg-text-3: #86909C;
+  --mg-terminal-bg: rgba(0, 0, 0, 0.05);
+}
+
+/* Apply variables to Arco and body */
+body[arco-theme='dark'], .theme-dark {
+  --color-bg-1: var(--mg-bg-1);
+  --color-bg-2: var(--mg-bg-2);
+  --color-text-1: var(--mg-text-1);
+  --color-text-2: var(--mg-text-2);
+  --color-text-3: var(--mg-text-3);
+  --color-border: rgba(255, 255, 255, 0.08);
+}
+
+body:not([arco-theme='dark']), .theme-light {
+  --color-bg-1: var(--mg-bg-1);
+  --color-bg-2: var(--mg-bg-2);
+  --color-text-1: var(--mg-text-1);
+  --color-text-2: var(--mg-text-2);
+  --color-text-3: var(--mg-text-3);
+  --color-border: rgba(0, 0, 0, 0.08);
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--mg-bg-1);
+  color: var(--mg-text-1);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Glassmorphism Classes */
+.glass-card {
+  background: var(--mg-bg-card);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+.glass-header {
+  background: rgba(var(--mg-bg-2-rgb), 0.6);
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Button Glowing Effects */
+.arco-btn-primary:not(.arco-btn-disabled) {
+  box-shadow: 0 4px 14px 0 rgba(var(--mg-primary-rgb), 0.35);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.arco-btn-primary:not(.arco-btn-disabled):hover {
+  box-shadow: 0 6px 20px 0 rgba(var(--mg-primary-rgb), 0.5);
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.arco-btn-primary:not(.arco-btn-disabled):active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px 0 rgba(var(--mg-primary-rgb), 0.4);
+}
+
+/* Special Glow for Success/Warning/Danger buttons */
+.arco-btn-status-success:not(.arco-btn-disabled) { box-shadow: 0 4px 12px 0 rgba(0, 180, 42, 0.3); }
+.arco-btn-status-danger:not(.arco-btn-disabled) { box-shadow: 0 4px 12px 0 rgba(245, 63, 63, 0.3); }
+.arco-btn-status-warning:not(.arco-btn-disabled) { box-shadow: 0 4px 12px 0 rgba(255, 125, 0, 0.3); }
+
+/* Global Transitions */
+* {
+  transition: border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              background-color 0.3s ease, 
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+/* Rounded Corners for Arco Components */
+.arco-btn { border-radius: 8px !important; }
+.arco-card { border-radius: 20px !important; overflow: hidden; }
+.arco-input, .arco-input-number, .arco-select { border-radius: 10px !important; }
+.arco-layout-sider { border-radius: 0 24px 24px 0; }
+
+/* Markdown Preview Fixes */
+.md-editor, 
+.md-editor-preview-wrapper, 
+.md-editor-preview,
+.md-editor-content {
+  background-color: transparent !important;
+}
+
+:root {
+  --md-bk-color: transparent !important;
+}
+
+.md-editor-dark {
+  --md-bk-color: transparent !important;
+  --md-color: var(--mg-text-1) !important;
+}
+
+.md-editor-preview {
+  color: inherit !important;
+}

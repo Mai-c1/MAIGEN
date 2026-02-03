@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maigen.api.mapper.UserSignInMapper">
+
+    <resultMap id="BaseResultMap" type="com.maigen.api.entity.UserSignIn">
+            <id property="id" column="id" />
+            <result property="userId" column="user_id" />
+            <result property="signInDate" column="sign_in_date" />
+            <result property="pointsReward" column="points_reward" />
+            <result property="createdAt" column="created_at" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,sign_in_date,points_reward,created_at
+    </sql>
+</mapper>

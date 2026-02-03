@@ -1,0 +1,39 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@arco-design/web-vue": "^2.57.0",
+    "@icon-park/vue-next": "^1.4.2",
+    "ace-builds": "^1.43.6",
+    "axios": "^1.13.4",
+    "clsx": "^2.1.1",
+    "echarts": "^6.0.0",
+    "lucide-vue-next": "^0.563.0",
+    "md-editor-v3": "^6.3.1",
+    "pinia": "^3.0.4",
+    "tailwind-merge": "^3.4.0",
+    "vue": "^3.5.24",
+    "vue-router": "^5.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/ace": "^0.0.52",
+    "@types/node": "^24.10.9",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/tsconfig": "^0.8.1",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "sass": "^1.97.3",
+    "tailwindcss": "^4.1.18",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4",
+    "vue-tsc": "^3.1.4"
+  }
+}

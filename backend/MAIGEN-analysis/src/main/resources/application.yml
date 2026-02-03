@@ -1,0 +1,19 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: MAIGEN-analysis
+  
+  # Spring AI Alibaba 配置
+  ai:
+    dashscope:
+      api-key: ${QWEN_API_KEY}
+      chat:
+        options:
+          model: qwen-turbo
+
+logging:
+  level:
+    com.maigen.analysis: debug
+    org.springframework.ai: info

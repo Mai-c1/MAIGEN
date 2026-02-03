@@ -1,0 +1,8 @@
+target/
+!.jar
+.git/
+*.iml
+.idea/
+.vscode/
+node_modules/
+docker/deploy.sh
