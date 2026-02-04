@@ -26,7 +26,6 @@ import java.util.List;
 @RequestMapping("/admin/user")
 @RequiredArgsConstructor
 @Tag(name = "管理后台-用户管理", description = "用户全生命周期管理、积分调账及角色分配")
-@SaCheckRole("管理员")
 public class ManageUserController {
 
     private final UserService userService;
@@ -118,6 +117,25 @@ public class ManageUserController {
     @SaCheckPermission("user:view")
     public SaResult listInvitations(PageQuery query) {
         return SaResult.data(invitationService.page(query.toMpPage()));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除用户")
+    @Log(module = "用户管理", operation = "删除用户")
+    @SaCheckPermission("user:delete")
+    public SaResult deleteUser(@PathVariable Long id) {
+        userService.removeById(id);
+        return SaResult.ok("删除成功");
+    }
+
+    @DeleteMapping("/batch")
+    @Operation(summary = "批量删除用户")
+    @Log(module = "用户管理", operation = "批量删除用户")
+    @SaCheckPermission("user:batch-delete")
+    public SaResult batchDeleteUsers(@RequestBody List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return SaResult.error("ID列表不能为空");
+        userService.removeByIds(ids);
+        return SaResult.ok("批量删除成功");
     }
 
     private void assignRole(Long userId, String roleName) {

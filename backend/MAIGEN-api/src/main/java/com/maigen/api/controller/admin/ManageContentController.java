@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin/content")
 @RequiredArgsConstructor
 @io.swagger.v3.oas.annotations.tags.Tag(name = "管理后台-内容管理", description = "社区资源审核、分类及标签管理")
-@SaCheckRole("管理员")
 public class ManageContentController {
 
     private final CommunityContentService communityContentService;

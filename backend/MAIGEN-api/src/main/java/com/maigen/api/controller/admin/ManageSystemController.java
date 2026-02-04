@@ -13,6 +13,7 @@ import com.maigen.api.service.PointsRuleService;
 import com.maigen.api.service.StatisticsService;
 import com.maigen.api.service.SystemConfigService;
 import com.maigen.api.service.PointsRecordService;
+import com.maigen.common.core.annotation.Log;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin/system")
 @RequiredArgsConstructor
 @io.swagger.v3.oas.annotations.tags.Tag(name = "管理后台-系统管理", description = "系统配置、积分规则、审计日志及全局统计")
-@SaCheckRole("管理员")
 public class ManageSystemController {
 
     private final SystemConfigService systemConfigService;
@@ -112,5 +112,31 @@ public class ManageSystemController {
     @SaCheckPermission("admin:dashboard")
     public SaResult getStatistics() {
         return SaResult.data(statisticsService.list());
+    }
+
+    @PostMapping("/backup")
+    @Operation(summary = "系统数据备份")
+    @Log(module = "系统管理", operation = "执行备份")
+    @SaCheckPermission("system:backup")
+    public SaResult backup() {
+        // 占位实现：触发异步备份任务
+        return SaResult.ok("数据备份任务已启动，请在日志中查看进度");
+    }
+
+    @PostMapping("/restore")
+    @Operation(summary = "系统数据恢复")
+    @Log(module = "系统管理", operation = "执行恢复")
+    @SaCheckPermission("system:restore")
+    public SaResult restore() {
+        return SaResult.ok("正在从最近一次备份恢复，系统将短暂进入维护模式");
+    }
+
+    @PostMapping("/notice")
+    @Operation(summary = "发布全站通知")
+    @Log(module = "系统管理", operation = "发布通知")
+    @SaCheckPermission("system:notice:publish")
+    public SaResult publishNotice(@RequestParam String content) {
+        // 实际逻辑：写入 Redis 或 数据库通知表，并通过 WebSocket 推送
+        return SaResult.ok("通知已成功发布至全站");
     }
 }

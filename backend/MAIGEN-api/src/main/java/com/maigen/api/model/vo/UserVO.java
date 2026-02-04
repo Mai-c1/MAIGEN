@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Schema(description = "用户信息VO")
@@ -35,6 +36,12 @@ public class UserVO implements Serializable {
 
     @Schema(description = "账号状态 (1-正常, 0-禁用)", example = "1")
     private Integer status;
+
+    @Schema(description = "角色列表")
+    private List<String> roles;
+
+    @Schema(description = "权限列表")
+    private List<String> permissions;
 
     @Schema(description = "注册时间", example = "2023-01-01 00:00:00")
     private LocalDateTime createdAt;

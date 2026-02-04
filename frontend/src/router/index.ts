@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
+import { useUserStore } from '@/store/user';
+import { Message } from '@arco-design/web-vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -56,6 +58,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/admin',
     component: () => import('@/layout/AdminLayout.vue'),
+    meta: { permission: 'admin:dashboard' },
     children: [
       {
         path: '',
@@ -71,13 +74,41 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
+  const userStore = useUserStore();
   const token = localStorage.getItem('token');
-  if (to.meta.requiresAuth !== false && !token) {
-    next('/login');
-  } else {
+
+  // 1. 白名单处理
+  if (to.meta.requiresAuth === false) {
     next();
+    return;
   }
+
+  // 2. 未登录处理
+  if (!token) {
+    next('/login');
+    return;
+  }
+
+  // 3. 已登录但未获取用户信息处理
+  if (!userStore.userInfo) {
+    try {
+      await userStore.fetchUserInfo();
+    } catch (error) {
+      next('/login');
+      return;
+    }
+  }
+
+  // 4. 路由权限校验
+  const requiredPermission = to.meta.permission as string;
+  if (requiredPermission && !userStore.hasPermission(requiredPermission)) {
+    Message.error('您没有访问该页面的权限');
+    next('/dashboard');
+    return;
+  }
+
+  next();
 });
 
 export default router;

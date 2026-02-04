@@ -48,31 +48,12 @@
         <div class="header-right">
           <a-space size="large">
             <!-- 主题切换器 -->
-            <a-dropdown trigger="click" position="br">
-              <a-button type="text" class="header-btn">
-                <template #icon>
-                  <icon-moon-fill v-if="appStore.theme === 'dark'" />
-                  <icon-sun-fill v-else />
-                </template>
-              </a-button>
-              <template #content>
-                <div class="theme-panel p-2 min-w-[120px]">
-                  <div class="theme-title text-xs font-bold text-gray-500 mb-2 px-2">显示主题</div>
-                  <div class="flex flex-col gap-1">
-                    <div 
-                      v-for="mode in modes" 
-                      :key="mode.id"
-                      class="theme-mode-item flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all hover:bg-primary/10"
-                      :class="{ 'active bg-primary/20 text-primary font-bold': appStore.theme === mode.id }"
-                      @click="appStore.setTheme(mode.id)"
-                    >
-                      <component :is="mode.icon" />
-                      <span class="text-sm">{{ mode.name }}</span>
-                    </div>
-                  </div>
-                </div>
+            <a-button type="text" class="header-btn" @click="appStore.toggleTheme">
+              <template #icon>
+                <icon-moon-fill v-if="appStore.theme === 'dark'" />
+                <icon-sun-fill v-else />
               </template>
-            </a-dropdown>
+            </a-button>
 
             <div class="points-badge">
               <icon-safe />
@@ -98,7 +79,7 @@
                   安全设置
                 </a-doption>
                 <a-divider v-if="isAdmin" style="margin: 4px 0" />
-                <a-doption v-if="isAdmin" @click="router.push('/admin')">
+                <a-doption v-permission="`admin:dashboard`" @click="router.push('/admin')">
                   <template #icon><icon-settings /></template>
                   管理后台
                 </a-doption>

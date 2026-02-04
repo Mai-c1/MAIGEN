@@ -8,6 +8,8 @@ export interface UserInfo {
   avatar: string;
   points: number;
   invitationCode: string;
+  roles: string[];
+  permissions: string[];
   createdAt: string;
 }
 

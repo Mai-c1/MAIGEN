@@ -24,6 +24,11 @@ export const useAppStore = defineStore('app', () => {
     }
   };
 
+  const toggleTheme = () => {
+    const newTheme = theme.value === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+  };
+
   const setCollapsed = (val: boolean) => {
     collapsed.value = val;
   };
@@ -37,6 +42,7 @@ export const useAppStore = defineStore('app', () => {
     theme,
     collapsed,
     setTheme,
+    toggleTheme,
     setCollapsed,
     initTheme,
   };

@@ -260,6 +260,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         BeanUtil.copyProperties(user, vo);
         vo.setId(user.getId());
         vo.setCreatedAt(user.getCreatedAt());
+        
+        // 注入权限信息 (利用 Sa-Token 缓存机制)
+        vo.setRoles(StpUtil.getRoleList());
+        vo.setPermissions(StpUtil.getPermissionList());
+        
         return vo;
     }
 }

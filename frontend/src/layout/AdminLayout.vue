@@ -10,6 +10,13 @@
       </div>
       <div class="header-right">
         <a-space size="large">
+          <a-button type="text" class="header-btn" @click="appStore.toggleTheme">
+            <template #icon>
+              <icon-moon-fill v-if="appStore.theme === 'dark'" />
+              <icon-sun-fill v-else />
+            </template>
+          </a-button>
+          <a-divider direction="vertical" />
           <a-button type="text" class="header-btn" @click="goHome">
             <template #icon><icon-dashboard /></template>
             返回前台
@@ -39,10 +46,12 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/store/user';
-import { IconSettings, IconDashboard } from '@arco-design/web-vue/es/icon';
+import { useAppStore } from '@/store/app';
+import { IconSettings, IconDashboard, IconMoonFill, IconSunFill } from '@arco-design/web-vue/es/icon';
 
 const router = useRouter();
 const userStore = useUserStore();
+const appStore = useAppStore();
 
 const goHome = () => {
   router.push('/');

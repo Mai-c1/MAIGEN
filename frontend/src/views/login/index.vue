@@ -5,6 +5,14 @@
     <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/20 rounded-full blur-[100px] animate-pulse" style="animation-delay: 1s;"></div>
 
     <div class="glass-card p-12 rounded-[32px] w-full max-w-[480px] relative z-10 border border-[var(--mg-border)] shadow-2xl backdrop-blur-2xl">
+      <!-- 主题切换按钮 -->
+      <a-button type="text" class="absolute top-4 right-4 text-[var(--mg-text-2)] hover:bg-[var(--mg-bg-2)]" @click="appStore.toggleTheme">
+        <template #icon>
+          <icon-moon-fill v-if="appStore.theme === 'dark'" />
+          <icon-sun-fill v-else />
+        </template>
+      </a-button>
+
       <div class="text-center mb-12">
         <h1 class="text-5xl font-black mg-text-gradient mb-3 tracking-tight drop-shadow-lg">
           {{ isLogin ? 'MAIGEN' : '加入我们' }}
@@ -174,9 +182,12 @@ import { useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import { login, register, sendCode } from '@/api/auth';
 import { useUserStore } from '@/store/user';
+import { useAppStore } from '@/store/app';
+import { IconMoonFill, IconSunFill } from '@arco-design/web-vue/es/icon';
 
 const router = useRouter();
 const userStore = useUserStore();
+const appStore = useAppStore();
 const loading = ref(false);
 const isLogin = ref(true);
 const countdown = ref(0);
