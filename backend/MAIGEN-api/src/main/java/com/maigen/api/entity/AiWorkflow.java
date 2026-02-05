@@ -8,33 +8,45 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 /**
- * 
- * @TableName task_strategy
+ * AI工作流方案
+ * @TableName ai_workflow
  */
-@TableName(value ="task_strategy")
+@TableName(value ="ai_workflow")
 @Data
-public class TaskStrategy {
+public class AiWorkflow {
     /**
-     * 
+     * 主键
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 策略名称
+     * 方案名称
      */
     @TableField(value = "name")
     private String name;
 
     /**
-     * 
+     * 描述
      */
     @TableField(value = "description")
     private String description;
 
     /**
-     * 
+     * 是否对前端可见
+     */
+    @TableField(value = "is_visible")
+    private Boolean isVisible;
+
+    /**
+     * 创建时间
      */
     @TableField(value = "created_at")
     private LocalDateTime createdAt;
+
+    /**
+     * 更新时间
+     */
+    @TableField(value = "updated_at")
+    private LocalDateTime updatedAt;
 }

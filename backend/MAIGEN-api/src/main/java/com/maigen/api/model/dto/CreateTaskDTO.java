@@ -27,6 +27,6 @@ public class CreateTaskDTO implements Serializable {
     @Schema(description = "测试点数量 (1-50)", example = "10")
     private Integer testcaseCount; // 测试点数量 (1-50)
 
-    @Schema(description = "选中的测试策略ID列表", example = "[1, 2, 3]")
-    private List<Long> strategyIds;
+    @Schema(description = "选中的生成方案ID", example = "1")
+    private Long workflowId;
 }

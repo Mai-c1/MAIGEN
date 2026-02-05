@@ -45,4 +45,5 @@ public enum TaskStatusEnum {
     public boolean isRunning() {
         return this == ANALYZING || this == GENERATING || this == VERIFYING;
     }
+
 }

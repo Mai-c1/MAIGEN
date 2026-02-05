@@ -41,6 +41,11 @@ public class RabbitMQConstants {
     public static final String QUEUE_TASK_STATUS = "maigen.task.status";
 
     /**
+     * 任务执行日志队列 (Analysis -> API)
+     */
+    public static final String QUEUE_TASK_LOG = "maigen.task.log";
+
+    /**
      * 任务全链路死信队列
      */
     public static final String QUEUE_TASK_DEAD = "maigen.task.dead";

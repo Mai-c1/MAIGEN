@@ -33,8 +33,14 @@ public class TaskDetailVO implements Serializable {
     @Schema(description = "空间限制 (MB)")
     private Integer memoryLimit;
 
-    @Schema(description = "策略列表")
-    private List<String> strategies;
+    @Schema(description = "生成方案ID")
+    private Long workflowId;
+
+    @Schema(description = "生成方案名称")
+    private String workflowName;
+
+    @Schema(description = "生成方案描述")
+    private String workflowDescription;
 
     @Schema(description = "状态")
     private Integer status;

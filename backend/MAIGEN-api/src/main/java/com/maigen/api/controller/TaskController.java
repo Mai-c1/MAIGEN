@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.util.SaResult;
 import com.maigen.api.model.dto.CreateTaskDTO;
 import com.maigen.api.service.TaskService;
+import com.maigen.api.service.AiWorkflowService;
 import com.maigen.common.core.annotation.Log;
 import com.maigen.common.core.annotation.RateLimit;
 import com.maigen.api.model.dto.PageQuery;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class TaskController {
 
     private final TaskService taskService;
+    private final AiWorkflowService workflowService;
 
     @PostMapping("/create")
     @Operation(summary = "创建任务", description = "提交题目描述和配置，创建生成任务")
@@ -29,10 +31,10 @@ public class TaskController {
         return SaResult.data(taskService.createTask(dto));
     }
 
-    @GetMapping("/strategies")
-    @Operation(summary = "获取可选策略列表", description = "获取系统预设的所有测试点生成策略")
-    public SaResult getStrategies() {
-        return SaResult.data(taskService.getStrategies());
+    @GetMapping("/workflows")
+    @Operation(summary = "获取可选生成方案列表", description = "获取系统预设的AI生成方案")
+    public SaResult getWorkflows() {
+        return SaResult.data(workflowService.getPublicWorkflows());
     }
 
     @GetMapping("/status/{taskId}")
@@ -78,5 +80,11 @@ public class TaskController {
     public SaResult retryTask(@PathVariable Long taskId) {
         taskService.retryTask(taskId);
         return SaResult.ok("已发起重试");
+    }
+
+    @GetMapping("/logs/{taskId}")
+    @Operation(summary = "获取任务执行日志", description = "获取任务的 AI 交互与执行日志")
+    public SaResult getTaskLogs(@PathVariable Long taskId) {
+        return SaResult.data(taskService.getTaskLogs(taskId));
     }
 }

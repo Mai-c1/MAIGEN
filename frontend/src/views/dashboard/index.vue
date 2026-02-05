@@ -8,13 +8,16 @@
       
       <div class="flex items-center gap-6 relative z-10">
         <a-avatar :size="80" class="shadow-2xl border-4 border-primary/20 ring-4 border-[var(--mg-border)] transition-transform hover:scale-105 duration-500">
-          <img :src="userStore.userInfo?.avatar || 'https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/3ee5f1341c7918341.png~tplv-uwbnlip3yd-webp.webp'" />
+          <img 
+            :src="userStore.userInfo?.avatar || 'https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/3ee5f1341c7918341.png~tplv-uwbnlip3yd-webp.webp'" 
+            style="object-fit: cover; width: 100%; height: 100%;"
+          />
         </a-avatar>
         <div>
           <h1 class="text-3xl font-black text-[var(--mg-text-1)] mb-2 tracking-tight">
             {{ userStore.userInfo?.nickname || userStore.userInfo?.username || '开发者' }}
           </h1>
-          <p class="text-[var(--mg-text-2)] text-lg m-0 opacity-80 font-medium">欢迎回来！这是您的 AI 创作空间。</p>
+          <p class="text-[var(--mg-text-2)] text-lg m-0 opacity-80 font-medium">欢迎回来！</p>
         </div>
       </div>
       

@@ -9,6 +9,7 @@ import com.maigen.api.entity.UserRole;
 import com.maigen.api.entity.Role;
 import com.maigen.api.model.dto.PageQuery;
 import com.maigen.api.model.dto.admin.AdminUserDTO;
+import com.maigen.api.model.dto.admin.AdminUserQueryDTO;
 import com.maigen.api.model.dto.admin.PointsAdjustmentDTO;
 import com.maigen.api.service.*;
 import com.maigen.common.core.annotation.Log;
@@ -37,12 +38,8 @@ public class ManageUserController {
     @GetMapping("/list")
     @Operation(summary = "用户列表")
     @SaCheckPermission("user:view")
-    public SaResult listUsers(PageQuery query, String keyword) {
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        if (StringUtils.hasText(keyword)) {
-            wrapper.like(User::getUsername, keyword).or().like(User::getEmail, keyword);
-        }
-        return SaResult.data(userService.page(query.toMpPage(), wrapper));
+    public SaResult listUsers(AdminUserQueryDTO query) {
+        return SaResult.data(userService.getAdminUserPage(query));
     }
 
     @PostMapping

@@ -7,12 +7,18 @@ import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+
+
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.maigen.api.entity.Invitation;
-import com.maigen.api.entity.PointsRecord;
-import com.maigen.api.entity.User;
+import com.maigen.api.entity.*;
+import com.maigen.api.mapper.RoleMapper;
 import com.maigen.api.mapper.UserMapper;
+import com.maigen.api.mapper.UserRoleMapper;
 import com.maigen.api.model.dto.*;
+import com.maigen.api.model.dto.admin.AdminUserQueryDTO;
+import com.maigen.api.model.vo.AdminUserVO;
 import com.maigen.api.model.vo.TokenVO;
 import com.maigen.api.model.vo.UserVO;
 import com.maigen.api.service.InvitationService;
@@ -29,7 +35,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +48,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final EmailUtil emailUtil;
     private final PointsRecordService recordService;
     private final InvitationService invitationService;
+    private final UserRoleMapper userRoleMapper;
+    private final RoleMapper roleMapper;
 
     @Override
     public void sendCode(String email, String type) {
@@ -266,5 +277,75 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         vo.setPermissions(StpUtil.getPermissionList());
         
         return vo;
+    }
+
+    @Override
+    public PageDTO<AdminUserVO> getAdminUserPage(AdminUserQueryDTO query) {
+        Page<User> page = query.toMpPage();
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+
+        // 1. 基础条件过滤
+        if (StrUtil.isNotBlank(query.getKeyword())) {
+            wrapper.and(w -> w.like(User::getUsername, query.getKeyword())
+                    .or()
+                    .like(User::getEmail, query.getKeyword()));
+        }
+        if (query.getStatus() != null) {
+            wrapper.eq(User::getStatus, query.getStatus());
+        }
+        if (query.getMinPoints() != null) {
+            wrapper.ge(User::getPoints, query.getMinPoints());
+        }
+        if (query.getMaxPoints() != null) {
+            wrapper.le(User::getPoints, query.getMaxPoints());
+        }
+
+        // 2. 角色过滤 (子查询: 先查出符合角色的 userIds)
+        if (StrUtil.isNotBlank(query.getRole())) {
+            // 先查角色ID
+            Role role = roleMapper.selectOne(new LambdaQueryWrapper<Role>().eq(Role::getName, query.getRole()));
+            if (role != null) {
+                // 再查关联表
+                List<UserRole> userRoles = userRoleMapper.selectList(new LambdaQueryWrapper<UserRole>().eq(UserRole::getRoleId, role.getId()));
+                if (userRoles.isEmpty()) {
+                    return PageDTO.empty(); // 该角色下无用户
+                }
+                List<Long> userIds = userRoles.stream().map(UserRole::getUserId).collect(Collectors.toList());
+                wrapper.in(User::getId, userIds);
+            } else {
+                return PageDTO.empty(); // 角色不存在
+            }
+        }
+
+        wrapper.orderByDesc(User::getCreatedAt);
+        Page<User> userPage = this.page(page, wrapper);
+
+        // 3. 组装 VO (填充角色信息)
+        // 批量查询当前页用户的角色
+        List<Long> pageUserIds = userPage.getRecords().stream().map(User::getId).collect(Collectors.toList());
+        Map<Long, String> userRoleMap = new java.util.HashMap<>();
+        
+        if (!pageUserIds.isEmpty()) {
+            // 这里简单处理：取用户的第一个角色，或者拼接多个角色
+            // 复杂查询建议用 XML 联表，但既然要求 Lambda，我们在内存中组装
+            List<UserRole> urs = userRoleMapper.selectList(new LambdaQueryWrapper<UserRole>().in(UserRole::getUserId, pageUserIds));
+            if (!urs.isEmpty()) {
+                List<Long> roleIds = urs.stream().map(UserRole::getRoleId).distinct().collect(Collectors.toList());
+                Map<Long, String> roleNameMap = roleMapper.selectBatchIds(roleIds).stream()
+                        .collect(Collectors.toMap(Role::getId, Role::getName));
+                
+                for (UserRole ur : urs) {
+                    // 如果一个用户有多个角色，这里覆盖了，实际应由业务决定显示主角色或列表
+                    userRoleMap.put(ur.getUserId(), roleNameMap.get(ur.getRoleId()));
+                }
+            }
+        }
+
+        return PageDTO.of(userPage,u -> {
+            AdminUserVO vo = new AdminUserVO();
+            BeanUtil.copyProperties(u, vo);
+            vo.setRole(userRoleMap.getOrDefault(u.getId(), "普通用户")); // 默认值可调整
+            return vo;
+        });
     }
 }

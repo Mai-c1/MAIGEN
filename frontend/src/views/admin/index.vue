@@ -11,8 +11,8 @@
           v-for="item in menuItems" 
           :key="item.key"
           class="menu-item"
-          :class="{ active: currentModule === item.key }"
-          @click="currentModule = item.key"
+          :class="{ active: currentRoute.path.startsWith(item.path) }"
+          @click="handleNavigate(item.path)"
         >
           <component :is="item.icon" />
           <span v-if="!collapsed" class="ml-3">{{ item.label }}</span>
@@ -26,15 +26,18 @@
 
     <!-- 右侧内容区 -->
     <div class="admin-main">
-      <transition name="fade" mode="out-in">
-        <component :is="currentManager" />
-      </transition>
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { 
   IconUser, 
   IconStorage, 
@@ -42,28 +45,29 @@ import {
   IconSettings,
   IconMenuFold,
   IconMenuUnfold,
-  IconApps
+  IconApps,
+  IconSafe,
+  IconFile
 } from '@arco-design/web-vue/es/icon';
 
-import UserManager from './components/UserManager.vue';
-import ContentManager from './components/ContentManager.vue';
-import TaskManager from './components/TaskManager.vue';
-import SystemManager from './components/SystemManager.vue';
-
+const router = useRouter();
+const currentRoute = useRoute();
 const collapsed = ref(false);
-const currentModule = ref('users');
 
 const menuItems = [
-  { key: 'users', label: '用户管理', icon: IconUser, component: UserManager },
-  { key: 'content', label: '内容管理', icon: IconStorage, component: ContentManager },
-  { key: 'tasks', label: '任务监控', icon: IconCommand, component: TaskManager },
-  { key: 'system', label: '系统设置', icon: IconSettings, component: SystemManager },
+  { key: 'users', label: '用户管理', icon: IconUser, path: '/admin/user' },
+  { key: 'roles', label: '角色管理', icon: IconSafe, path: '/admin/role' },
+  { key: 'permissions', label: '权限管理', icon: IconSafe, path: '/admin/permission' },
+  { key: 'workflows', label: '生成方案', icon: IconApps, path: '/admin/workflow' },
+  { key: 'content', label: '内容管理', icon: IconStorage, path: '/admin/content' },
+  { key: 'tasks', label: '任务监控', icon: IconCommand, path: '/admin/task' },
+  { key: 'logs', label: '操作日志', icon: IconFile, path: '/admin/log' },
+  { key: 'system', label: '系统设置', icon: IconSettings, path: '/admin/system' },
 ];
 
-const currentManager = computed(() => {
-  const item = menuItems.find(i => i.key === currentModule.value);
-  return item ? item.component : UserManager;
-});
+const handleNavigate = (path: string) => {
+  router.push(path);
+};
 </script>
 
 <style scoped>

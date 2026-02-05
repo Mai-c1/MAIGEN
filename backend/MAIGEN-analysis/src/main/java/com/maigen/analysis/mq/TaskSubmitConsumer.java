@@ -1,5 +1,6 @@
 package com.maigen.analysis.mq;
 
+import cn.hutool.core.util.StrUtil;
 import com.maigen.common.core.enums.TaskStatusEnum;
 import com.maigen.common.core.model.dto.TaskErrorDTO;
 import com.maigen.common.core.model.dto.TaskStatusDTO;
@@ -27,19 +28,14 @@ public class TaskSubmitConsumer {
             // 1. 发送初始状态：分析中 (10%)
             sendStatusUpdate(taskId, TaskStatusEnum.ANALYZING, 10, "正在拉取数据并准备分析...");
 
-            // 2. 进入 AI 生成阶段 (20%)
-            sendStatusUpdate(taskId, TaskStatusEnum.ANALYZING, 20, "AI 正在分析题目并生成代码...");
-
-            // 3. 调用 AI 分析与代码生成
+            // 2. 调用 AI 分析与代码生成 (内部会细化更新状态 20%-60%)
+            // 此时状态会从 ANALYZING 流转到 GENERATING
             aiAnalysisService.analyzeAndGenerate(taskId);
 
-            // 4. 解析结果阶段 (55%)
-            sendStatusUpdate(taskId, TaskStatusEnum.ANALYZING, 55, "解析生成结果并准备下发验证...");
+            // 3. 生成完成，准备验证 (70%)
+            sendStatusUpdate(taskId, TaskStatusEnum.VERIFYING, 70, "代码生成完成，正在启动沙箱验证...");
 
-            // 5. 发送状态更新：生成完成 (60%)
-            sendStatusUpdate(taskId, TaskStatusEnum.GENERATING);
-
-            // 6. 将轻量级任务消息发送给 Sandbox 模块执行
+            // 4. 将轻量级任务消息发送给 Sandbox 模块执行
             rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_TASK, 
                     RabbitMQConstants.QUEUE_TASK_EXECUTE, taskId);
             
@@ -48,8 +44,14 @@ public class TaskSubmitConsumer {
         } catch (Exception e) {
             log.error("处理任务分析失败: taskId={}", taskId, e);
             
+            // 截取错误信息，防止过长
+            String errorMsg = e.getMessage();
+            if (errorMsg != null && errorMsg.length() > 100) {
+                errorMsg = StrUtil.subPre(errorMsg, 100) + "...";
+            }
+            
             // 发送失败状态更新
-            sendStatusUpdate(taskId, TaskStatusEnum.FAILED, "分析生成阶段异常: " + e.getMessage());
+            sendStatusUpdate(taskId, TaskStatusEnum.FAILED, "分析生成阶段异常: " + errorMsg);
             
             if (isRetryableException(e)) {
                 throw new RuntimeException("Analysis temporary failure, triggering MQ retry", e);

@@ -64,6 +64,38 @@ const routes: RouteRecordRaw[] = [
         path: '',
         name: 'Admin',
         component: () => import('@/views/admin/index.vue'),
+        redirect: '/admin/user', // 默认跳转到用户管理
+        children: [
+          {
+            path: 'user',
+            name: 'AdminUser',
+            component: () => import('@/views/admin/user/index.vue'),
+          },
+          {
+            path: 'role',
+            name: 'AdminRole',
+            component: () => import('@/views/admin/role/index.vue'),
+          },
+          {
+            path: 'permission',
+            name: 'AdminPermission',
+            component: () => import('@/views/admin/permission/index.vue'),
+          },
+          {
+            path: 'workflow',
+            name: 'AdminWorkflow',
+            component: () => import('@/views/admin/workflow/index.vue'),
+          },
+          {
+            path: 'log',
+            name: 'AdminLog',
+            component: () => import('@/views/admin/log/index.vue'),
+          },
+          // 暂时保留其他路径作为占位，后续补充
+          { path: 'content', component: () => import('@/views/admin/index.vue') }, 
+          { path: 'task', component: () => import('@/views/admin/index.vue') }, 
+          { path: 'system', component: () => import('@/views/admin/index.vue') }, 
+        ]
       },
     ],
   },

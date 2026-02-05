@@ -5,9 +5,9 @@
         <h2 class="text-2xl font-bold text-[var(--mg-text-1)]">任务监控</h2>
         <p class="text-[var(--mg-text-3)] text-sm">全站 AI 生成任务运行状态及资源消耗审计</p>
       </div>
-      <a-button type="outline" size="large" @click="showStrategyDrawer" class="rounded-xl">
+      <a-button type="outline" size="large" class="rounded-xl" disabled>
         <template #icon><icon-command /></template>
-        策略管理
+        方案管理
       </a-button>
     </div>
 
@@ -142,27 +142,6 @@
         </div>
       </div>
     </a-drawer>
-
-    <!-- 策略管理抽屉 -->
-    <a-drawer v-model:visible="strategyDrawer.visible" title="任务生成策略管控" width="500px" class="minimal-drawer">
-      <div class="mb-6 flex gap-2">
-        <a-input v-model="newStrategy.name" placeholder="策略名称..." class="rounded-xl" />
-        <a-button type="primary" @click="addStrategy" class="rounded-xl">新增策略</a-button>
-      </div>
-      <a-table :data="strategies" :pagination="false" :bordered="false" class="custom-table">
-        <template #columns>
-          <a-table-column title="策略名称" data-index="name" />
-          <a-table-column title="描述" data-index="description" />
-          <a-table-column title="操作" align="right">
-            <template #cell="{ record }">
-              <a-button type="text" status="danger" size="small" @click="deleteStrategy(record.id)">
-                <template #icon><icon-delete /></template>
-              </a-button>
-            </template>
-          </a-table-column>
-        </template>
-      </a-table>
-    </a-drawer>
   </div>
 </template>
 
@@ -187,9 +166,6 @@ const filterStatus = ref(null);
 const pagination = ref({ current: 1, pageSize: 10, total: 0 });
 
 const detailDrawer = ref({ visible: false, record: null });
-const strategyDrawer = ref({ visible: false });
-const strategies = ref([]);
-const newStrategy = ref({ name: '', description: '' });
 
 const fetchData = async () => {
   loading.value = true;
@@ -230,24 +206,6 @@ const handleDelete = async (record: any) => {
     Message.success('任务记录已从系统中清除');
     fetchData();
   } catch (error) {}
-};
-
-const showStrategyDrawer = async () => {
-  strategyDrawer.value.visible = true;
-  const res: any = await adminTask.listStrategies();
-  strategies.value = res.data || [];
-};
-
-const addStrategy = async () => {
-  if (!newStrategy.value.name) return;
-  await adminTask.createStrategy(newStrategy.value);
-  newStrategy.value = { name: '', description: '' };
-  showStrategyDrawer();
-};
-
-const deleteStrategy = async (id: number) => {
-  await adminTask.deleteStrategy(id);
-  showStrategyDrawer();
 };
 
 onMounted(fetchData);

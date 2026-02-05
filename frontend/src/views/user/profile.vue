@@ -12,7 +12,7 @@
               v-if="userForm.avatar"
               :key="userForm.avatar"
               :src="userInfo.avatar"
-              style="object-fit: cover;"
+              style="object-fit: cover; width: 100%; height: 100%;"
             />
           </a-avatar>
           <a-upload

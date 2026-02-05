@@ -20,8 +20,6 @@ public interface TaskService extends IService<Task> {
 
     Long createTask(CreateTaskDTO dto);
 
-    List<com.maigen.api.entity.TaskStrategy> getStrategies();
-
     TaskStatusVO getTaskStatus(Long taskId);
 
     TaskDetailVO getTaskDetail(Long taskId);
@@ -37,4 +35,6 @@ public interface TaskService extends IService<Task> {
     void retryTask(Long taskId);
 
     TaskStatisticsVO getTaskStatistics();
+
+    List<com.maigen.api.entity.TaskExecutionLog> getTaskLogs(Long taskId);
 }

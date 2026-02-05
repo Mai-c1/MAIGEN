@@ -2,6 +2,9 @@ package com.maigen.api.service;
 
 import com.maigen.api.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.maigen.api.model.dto.*;
+import com.maigen.api.model.dto.admin.AdminUserQueryDTO;
+import com.maigen.api.model.vo.AdminUserVO;
 
 /**
 * @author 25128
@@ -18,21 +21,23 @@ public interface UserService extends IService<User> {
     /**
      * 注册
      */
-    void register(com.maigen.api.model.dto.RegisterDTO dto);
+    void register(RegisterDTO dto);
 
     /**
      * 登录
      */
-    com.maigen.api.model.vo.TokenVO login(com.maigen.api.model.dto.LoginDTO dto);
+    com.maigen.api.model.vo.TokenVO login(LoginDTO dto);
 
-    void forgetPassword(com.maigen.api.model.dto.ForgetPasswordDTO dto);
+    void forgetPassword(ForgetPasswordDTO dto);
 
-    void updateUserInfo(com.maigen.api.model.dto.UserUpdateDTO dto);
+    void updateUserInfo(UserUpdateDTO dto);
 
     /**
      * 修改密码
      */
-    void changePassword(com.maigen.api.model.dto.ChangePasswordDTO dto);
+    void changePassword(ChangePasswordDTO dto);
 
     com.maigen.api.model.vo.UserVO getUserInfo();
+
+    PageDTO<AdminUserVO> getAdminUserPage(AdminUserQueryDTO query);
 }

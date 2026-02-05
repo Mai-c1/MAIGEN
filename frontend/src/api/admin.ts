@@ -32,12 +32,34 @@ export const adminContent = {
 export const adminTask = {
   list: (params: any) => request.get('/admin/task/list', params),
   delete: (id: number | string) => request.delete(`/admin/task/${id}`),
-  
-  // 策略
-  listStrategies: () => request.get('/admin/task/strategy/list'),
-  createStrategy: (data: any) => request.post('/admin/task/strategy', data),
-  updateStrategy: (data: any) => request.put('/admin/task/strategy', data),
-  deleteStrategy: (id: number | string) => request.delete(`/admin/task/strategy/${id}`)
+};
+
+// --- 角色管理 (ManageRoleController) ---
+export const adminRole = {
+  list: (params: any) => request.get('/admin/role/list', params),
+  create: (data: any) => request.post('/admin/role/create', data),
+  update: (data: any) => request.post('/admin/role/update', data),
+  delete: (id: number | string) => request.post('/admin/role/delete', null, { params: { id } }),
+};
+
+// --- 权限管理 (ManagePermissionController) ---
+export const adminPermission = {
+  list: (params: any) => request.get('/admin/permission/list', params),
+  listAll: () => request.get('/admin/permission/list-all'),
+  create: (data: any) => request.post('/admin/permission/create', data),
+  update: (data: any) => request.post('/admin/permission/update', data),
+  delete: (id: number | string) => request.post('/admin/permission/delete', null, { params: { id } }),
+};
+
+// --- 方案管理 (ManageAiWorkflowController) ---
+export const adminWorkflow = {
+  list: (params: any) => request.get('/admin/workflow/list', params),
+  create: (data: any) => request.post('/admin/workflow/create', data),
+  update: (data: any) => request.post('/admin/workflow/update', data),
+  delete: (id: number | string) => request.post('/admin/workflow/delete', null, { params: { id } }),
+  copy: (id: number | string) => request.post('/admin/workflow/copy', null, { params: { id } }),
+  getSteps: (workflowId: number | string) => request.get('/admin/workflow/steps', { workflowId }),
+  saveSteps: (workflowId: number | string, steps: any[]) => request.post('/admin/workflow/steps/save', steps, { params: { workflowId } })
 };
 
 // --- 系统管理 (ManageSystemController) ---

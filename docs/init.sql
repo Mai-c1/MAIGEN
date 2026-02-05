@@ -133,6 +133,7 @@ CREATE TABLE IF NOT EXISTS `task` (
   `testcase_count` INT NOT NULL,
   `time_limit` INT DEFAULT 0,
   `memory_limit` INT DEFAULT 0,
+  `workflow_id` BIGINT DEFAULT NULL,
   `status` TINYINT DEFAULT 0,
   `progress` INT DEFAULT 0,
   `retry_count` INT DEFAULT 0,
@@ -144,16 +145,47 @@ CREATE TABLE IF NOT EXISTS `task` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 3.2 测试点策略表
-DROP TABLE IF EXISTS `task_strategy`;
-CREATE TABLE IF NOT EXISTS `task_strategy` (
+-- 3.2 AI工作流模块
+
+-- 3.2.1 工作流方案表
+DROP TABLE IF EXISTS `ai_workflow`;
+CREATE TABLE IF NOT EXISTS `ai_workflow` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   `description` VARCHAR(255) DEFAULT NULL,
+  `is_visible` TINYINT(1) DEFAULT 0,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_name` (`name`)
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 3.2.2 工作流步骤表
+DROP TABLE IF EXISTS `ai_workflow_step`;
+CREATE TABLE IF NOT EXISTS `ai_workflow_step` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `workflow_id` BIGINT NOT NULL,
+  `step_order` INT NOT NULL,
+  `role_name` VARCHAR(50) NOT NULL,
+  `system_prompt` TEXT NOT NULL,
+  `user_prompt_template` TEXT NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_workflow_id` (`workflow_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 3.2.3 任务执行日志表
+DROP TABLE IF EXISTS `task_execution_log`;
+CREATE TABLE IF NOT EXISTS `task_execution_log` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `task_id` BIGINT NOT NULL,
+  `step_order` INT NOT NULL,
+  `role_name` VARCHAR(50) NOT NULL,
+  `prompt_snapshot` LONGTEXT,
+  `ai_response` LONGTEXT,
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_task_id` (`task_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- 4. 数据管理模块
 
@@ -427,17 +459,14 @@ INSERT INTO `system_config` (`code`, `name`, `value`, `description`) VALUES
 ('EMAIL_VERIFY_CODE_SEND_INTERVAL', '邮箱验证码发送间隔', '60', '邮箱验证码发送间隔（秒）')
 ON DUPLICATE KEY UPDATE `value` = VALUES(`value`), `description` = VALUES(`description`);
 
--- 6. 初始测试点策略
-INSERT INTO `task_strategy` (`name`, `description`) VALUES
-('基础随机', '生成基础随机测试数据'),
-('边界极值', '生成边界极值测试数据'),
-('顺序特征', '生成顺序特征测试数据'),
-('复杂度边界', '生成复杂度边界测试数据'),
-('特殊结构', '生成特殊结构测试数据'),
-('数据分布', '生成数据分布测试数据'),
-('对抗性', '生成对抗性测试数据'),
-('组合特征', '生成组合特征测试数据')
-ON DUPLICATE KEY UPDATE `description` = VALUES(`description`);
+-- 6. 初始AI工作流
+INSERT INTO `ai_workflow` (`id`, `name`, `description`, `is_visible`) VALUES
+(1, '标准Python算法生成', '适用于标准算法竞赛题目的数据生成，使用 Python Cyaron 库', 1);
+
+INSERT INTO `ai_workflow_step` (`workflow_id`, `step_order`, `role_name`, `system_prompt`, `user_prompt_template`) VALUES
+(1, 1, '代码生成专家', 
+'你是一个资深的算法竞赛命题专家。\n你的任务是根据用户提供的题目描述，编写基于 Python Cyaron 库的数据生成脚本。\n\n【核心库规范 (参考 Cyaron Wiki)】\n1. 基础结构：\n   import os\n   from cyaron import *\n   if not os.path.exists(''./data/''): os.makedirs(''./data/'')\n2. 文件命名：\n   使用 `io = IO(file_prefix="", test_data_number=i, path=''./data/'')` \n   生成 ./data/1.in, ./data/2.in 等。\n3. 核心 API 推荐：\n   - 图论：Graph.graph(n, m, weight_limit=(l, r), self_loop=False)\n   - 树：Graph.tree(n, chain=0.3, spider=0.2)\n   - 序列/数组：Vector.random(size, [(min, max)])\n   - 随机数/字符：randint(l, r), String.random(len, charset)\n\n【编写准则 - 解决幻觉问题】\n1. **动态识别规模**：请仔细分析题目中“数据范围”部分提到的核心变量（可能是 n, m, k, len, t 等）。不要生搬硬套 N 或 M，如果题目是字符串题，请关注长度约束；如果题目是多组询问，请关注询问次数。\n2. **阶梯式构造**：生成的 N 组数据应包含从“最小约束（如 n=1）”到“最大满额约束”的平滑过渡。利用循环变量 `i` 动态计算当前测试点的规模。\n3. **合法性检查**：确保生成的逻辑符合题目逻辑（如：生成树时节点数必须大于0；生成不重复序列时范围必须足够）。\n\n【约束要求】\n1. 仅生成输入文件 (.in)，无需生成输出文件。\n2. 返回格式必须是纯 JSON 字符串，禁止包含 Markdown 标签。\n\n【返回 JSON 结构】\n{\n  "code": "Python 代码字符串",\n  "explanation": "简要说明识别到了哪些关键规模参数，以及如何进行阶梯式构造的。"\n}',
+'题目名称：{title}\n题目描述：{description}\n标准代码：{standardCode}\n测试用例数量：{testcaseCount}\n时间限制：{timeLimit}ms\n空间限制：{memoryLimit}MB\n\n请基于以上信息生成对应的 Cyraon 脚本。');
 
 -- 7. 初始统计数据
 INSERT INTO `statistics` (`code`, `name`, `value`) VALUES

@@ -16,7 +16,11 @@
             <icon-code-square v-if="!collapsed" :style="{ fontSize: '24px', color: '#fff' }" />
             <icon-code-square v-else :style="{ fontSize: '32px', color: '#fff' }" />
           </div>
-          <span v-if="!collapsed" class="logo-text">MAIGEN</span>
+          <p v-if="!collapsed">
+            <h1 class="logo-text">MAIGEN</h1>
+            <h5>自动化数据生成平台</h5>
+          </p>
+
         </div>
       </div>
       <a-menu
@@ -67,6 +71,7 @@
                 <img 
                   :key="userStore.userInfo?.avatar"
                   :src="userStore.userInfo?.avatar"
+                  style="object-fit: cover; width: 100%; height: 100%;"
                 />
               </a-avatar>
               <template #content>

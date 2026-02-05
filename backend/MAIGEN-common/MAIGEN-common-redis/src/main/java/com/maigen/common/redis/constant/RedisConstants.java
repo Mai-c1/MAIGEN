@@ -53,6 +53,18 @@ public class RedisConstants {
 
 
     /**
+     * AI工作流配置 Hash Key
+     * 类型: Hash {workflowId: List<AiWorkflowStep>}
+     */
+    public static final String SYS_AI_WORKFLOWS_KEY = "sys:ai:workflows";
+
+    /**
+     * 前端可见的 AI 工作流列表 Key
+     * 类型: String (List<AiWorkflow>)
+     */
+    public static final String SYS_AI_WORKFLOWS_PUBLIC_KEY = "sys:ai:workflows:public";
+
+    /**
      * Cyaron 脚本提示词
      */
     public static String getSystemPromptKey = "SYSTEM_PROMPT";

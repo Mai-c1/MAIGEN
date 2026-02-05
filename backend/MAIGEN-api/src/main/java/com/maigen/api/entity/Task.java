@@ -63,10 +63,10 @@ public class Task {
     private Integer memoryLimit;
 
     /**
-     * 测试点策略列表 (非数据库字段)
+     * 关联的生成方案ID
      */
-    @TableField(exist = false)
-    private java.util.List<TaskStrategy> strategyList;
+    @TableField(value = "workflow_id")
+    private Long workflowId;
 
     /**
      * 

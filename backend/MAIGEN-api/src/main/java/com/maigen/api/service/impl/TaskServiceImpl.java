@@ -6,6 +6,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.maigen.api.entity.AiWorkflow;
 import com.maigen.api.entity.GeneratedData;
 import com.maigen.api.entity.Task;
 import com.maigen.api.entity.User;
@@ -18,7 +19,6 @@ import com.maigen.api.model.vo.TaskDetailVO;
 import com.maigen.api.model.vo.TaskStatisticsVO;
 import com.maigen.api.model.vo.TaskStatusVO;
 import com.maigen.api.service.*;
-import com.maigen.api.entity.TaskStrategy;
 import com.maigen.common.core.constant.PointsConstants;
 import com.maigen.common.core.enums.TaskStatusEnum;
 import com.maigen.common.core.exception.CustomException;
@@ -32,14 +32,10 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.maigen.common.core.model.dto.StrategyDTO;
-import com.maigen.common.core.enums.TaskStatusEnum;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -58,12 +54,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task>
     private final StringRedisTemplate redisTemplate;
     private final PointsRecordService pointsRecordService;
     private final GeneratedDataService generatedDataService;
-    private final TaskStrategyService taskStrategyService;
-
-    @Override
-    public List<TaskStrategy> getStrategies() {
-        return taskStrategyService.list();
-    }
+    private final AiWorkflowService workflowService;
+    private final TaskExecutionLogService taskExecutionLogService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -96,13 +88,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task>
         task.setTimeLimit(dto.getTimeLimit());
         task.setMemoryLimit(dto.getMemoryLimit());
         task.setTestcaseCount(dto.getTestcaseCount());
+        task.setWorkflowId(dto.getWorkflowId());
         
-        // 加载策略详情（非持久化）
-        if (dto.getStrategyIds() != null && !dto.getStrategyIds().isEmpty()) {
-            List<TaskStrategy> strategies = taskStrategyService.listByIds(dto.getStrategyIds());
-            task.setStrategyList(strategies);
-        }
-
         task.setStatus(TaskStatusEnum.PENDING.getCode()); // 待处理
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
@@ -122,16 +109,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task>
         submitDTO.setTimeLimit(dto.getTimeLimit());
         submitDTO.setMemoryLimit(dto.getMemoryLimit());
         submitDTO.setTestcaseCount(dto.getTestcaseCount());
-        
-        if (task.getStrategyList() != null) {
-            submitDTO.setStrategyList(task.getStrategyList().stream()
-                    .map(s -> StrategyDTO.builder()
-                            .id(s.getId())
-                            .name(s.getName())
-                            .description(s.getDescription())
-                            .build())
-                    .collect(Collectors.toList()));
-        }
+        submitDTO.setWorkflowId(dto.getWorkflowId());
 
         String dataKey = RedisConstants.getTaskDataKey(task.getId());
         redisTemplate.opsForValue().set(dataKey, JSONUtil.toJsonStr(submitDTO), 7, TimeUnit.DAYS);
@@ -291,26 +269,23 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task>
             throw new CustomException("无权访问该任务", 500002);
         }
 
-        // 尝试从 Redis 获取完整的任务提交数据（包含策略列表）
-        String dataKey = RedisConstants.getTaskDataKey(taskId);
-        String jsonData = redisTemplate.opsForValue().get(dataKey);
-        List<String> strategies = Collections.emptyList();
-
-        if (StrUtil.isNotBlank(jsonData)) {
-            TaskSubmitDTO submitDTO = JSONUtil.toBean(jsonData, TaskSubmitDTO.class);
-            if (submitDTO.getStrategyList() != null) {
-                strategies = submitDTO.getStrategyList().stream()
-                        .map(StrategyDTO::getName)
-                        .collect(Collectors.toList());
-            }
-        }
-
         // 获取当前进度
         String progressKey = RedisConstants.getTaskProgressKey(taskId);
         String progressStr = redisTemplate.opsForValue().get(progressKey);
         Integer progress = StrUtil.isNotBlank(progressStr) ? Integer.parseInt(progressStr) : task.getProgress();
 
         int status = task.getStatus();
+
+        // 获取方案信息
+        String workflowName = "Unknown";
+        String workflowDescription = "";
+        if (task.getWorkflowId() != null) {
+            AiWorkflow workflow = workflowService.getById(task.getWorkflowId());
+            if (workflow != null) {
+                workflowName = workflow.getName();
+                workflowDescription = workflow.getDescription();
+            }
+        }
 
         TaskDetailVO vo = TaskDetailVO.builder()
                 .id(task.getId())
@@ -320,7 +295,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task>
                 .testcaseCount(task.getTestcaseCount())
                 .timeLimit(task.getTimeLimit())
                 .memoryLimit(task.getMemoryLimit())
-                .strategies(strategies)
+                .workflowId(task.getWorkflowId())
+                .workflowName(workflowName)
+                .workflowDescription(workflowDescription)
                 .status(status)
                 .statusDesc(TaskStatusEnum.getByCode(status).getDesc())
                 .progress(progress)
@@ -411,9 +388,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task>
             throw new CustomException("无权操作该任务", 500002);
         }
 
-        // 只有失败状态可以重试
-        if (!TaskStatusEnum.FAILED.getCode().equals(task.getStatus())) {
-            throw new CustomException("只有失败的任务可以重试", 500003);
+        // 允许任何终态或非进行中状态的任务重试（包括已完成、失败、取消等）
+        // 只要不是正在进行中，就可以重试
+        if (!TaskStatusEnum.getByCode(task.getStatus()).isFinal()) {
+            throw new CustomException("任务正在进行中，请等待执行完成", 500003);
         }
 
         // 1. 更新任务状态
@@ -424,10 +402,30 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task>
         task.setUpdatedAt(LocalDateTime.now());
         this.updateById(task);
 
-        String dataKey = RedisConstants.getTaskDataKey(task.getId());
-        redisTemplate.opsForValue().set(dataKey, JSONUtil.toJsonStr(task), 1, TimeUnit.HOURS);
+        // 2. 清理之前的日志（可选，为了让控制台看起来像新的一样）
+        taskExecutionLogService.remove(new LambdaQueryWrapper<com.maigen.api.entity.TaskExecutionLog>()
+                .eq(com.maigen.api.entity.TaskExecutionLog::getTaskId, taskId));
 
-        // 2. 发送 MQ (轻量级)
+        // 3. 将任务详细数据存入 Redis (Claim Check Pattern)
+        // 重新构建 submitDTO，确保 workflowId 存在
+        TaskSubmitDTO submitDTO = new TaskSubmitDTO();
+        submitDTO.setTaskId(task.getId());
+        submitDTO.setUserId(userId);
+        submitDTO.setTitle(task.getTitle());
+        submitDTO.setProblemDescription(task.getProblemDescription());
+        submitDTO.setStandardCode(task.getStandardCode());
+        submitDTO.setTimeLimit(task.getTimeLimit());
+        submitDTO.setMemoryLimit(task.getMemoryLimit());
+        submitDTO.setTestcaseCount(task.getTestcaseCount());
+        submitDTO.setWorkflowId(task.getWorkflowId());
+
+        String dataKey = RedisConstants.getTaskDataKey(task.getId());
+        redisTemplate.opsForValue().set(dataKey, JSONUtil.toJsonStr(submitDTO), 1, TimeUnit.HOURS);
+        
+        // 重置进度缓存
+        redisTemplate.opsForValue().set(RedisConstants.getTaskProgressKey(taskId), "0", 1, TimeUnit.HOURS);
+
+        // 4. 发送 MQ (轻量级)
         rabbitTemplate.convertAndSend(RabbitMQConstants.EXCHANGE_TASK, RabbitMQConstants.ROUTING_TASK_SUBMIT, task.getId());
     }
 
@@ -436,7 +434,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task>
         Long userId = StpUtil.getLoginIdAsLong();
 
         // 统计各状态数量
-        // 进行中: PENDING, ANALYZING, GENERATING, VERIFYING
+        // ... (existing code)
         Long inProgressCount = this.lambdaQuery()
                 .eq(Task::getUserId, userId)
                 .in(Task::getStatus, Arrays.asList(
@@ -447,13 +445,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task>
                 ))
                 .count();
 
-        // 已完成: COMPLETED
         Long completedCount = this.lambdaQuery()
                 .eq(Task::getUserId, userId)
                 .eq(Task::getStatus, TaskStatusEnum.COMPLETED.getCode())
                 .count();
 
-        // 失败: FAILED, TIMEOUT
         Long failedCount = this.lambdaQuery()
                 .eq(Task::getUserId, userId)
                 .in(Task::getStatus, Arrays.asList(
@@ -473,8 +469,20 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task>
                 .totalCount(totalCount)
                 .build();
     }
+    
+    @Override
+    public List<com.maigen.api.entity.TaskExecutionLog> getTaskLogs(Long taskId) {
+        // 1. 校验任务是否存在及权限
+        Task task = getById(taskId);
+        if (task == null) throw new CustomException("任务不存在", 500001);
+        
+        Long userId = StpUtil.getLoginIdAsLong();
+        if (!task.getUserId().equals(userId)) throw new CustomException("无权访问该任务", 500002);
+        
+        // 2. 查询日志
+        return taskExecutionLogService.lambdaQuery()
+                .eq(com.maigen.api.entity.TaskExecutionLog::getTaskId, taskId)
+                .orderByAsc(com.maigen.api.entity.TaskExecutionLog::getStepOrder)
+                .list();
+    }
 }
-
-
-
-

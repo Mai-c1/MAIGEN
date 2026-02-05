@@ -23,9 +23,9 @@
             <template #icon><icon-share-alt /></template>
             分享到社区
           </a-button>
-          <a-button v-if="[5, 6, 7].includes(taskInfo.status)" type="primary" status="danger" @click="handleRetry" class="rounded-xl px-6">
+          <a-button type="primary" status="danger" @click="handleRetry" class="rounded-xl px-6">
             <template #icon><icon-refresh /></template>
-            重试任务
+            {{ taskInfo.status === 4 ? '重新生成' : '重试任务' }}
           </a-button>
           <a-button type="primary" :disabled="taskInfo.status !== 4" @click="handleDownload" class="rounded-xl px-6">
             <template #icon><icon-download /></template>
@@ -147,11 +147,11 @@
                 <a-tag size="small" class="rounded-md">{{ taskInfo.memoryLimit }}MB</a-tag>
               </a-space>
             </a-descriptions-item>
-            <a-descriptions-item label="生成策略">
-              <div class="flex flex-wrap gap-1">
-                <a-tag v-for="s in taskInfo.strategies" :key="s" size="small" color="arcoblue" class="rounded-md">{{ s }}</a-tag>
-                <span v-if="!taskInfo.strategies?.length" class="text-[var(--mg-text-3)]">默认策略</span>
-              </div>
+            <a-descriptions-item label="生成方案">
+              <a-tag color="arcoblue" size="small" class="rounded-md">
+                <template #icon><icon-apps /></template>
+                {{ taskInfo.workflowName || '标准Python生成' }}
+              </a-tag>
             </a-descriptions-item>
             <a-descriptions-item label="创建于">
               <span class="opacity-70">{{ formatTime(taskInfo.createdAt) }}</span>
@@ -211,10 +211,11 @@ import {
   IconDownload,
   IconExclamationCircleFill,
   IconInfoCircle,
-  IconLoading
+  IconLoading,
+  IconApps
 } from '@arco-design/web-vue/es/icon';
 import CodeEditor from '@/components/CodeEditor.vue';
-import { getTaskDetail, retryTask } from '@/api/task';
+import { getTaskDetail, retryTask, getTaskLogs } from '@/api/task';
 import { shareContent, getCategories } from '@/api/community';
 import { useAppStore } from '@/store/app';
 
@@ -233,12 +234,33 @@ const logs = ref<{ time: string; type: string; content: string }[]>([]);
 
 const addLog = (type: string, content: string) => {
   const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
-  logs.value.push({ time, type, content });
-  // 保持最新日志可见
-  nextTick(() => {
-    const el = document.querySelector('.terminal-content');
-    if (el) el.scrollTop = el.scrollHeight;
-  });
+  // 去重：避免重复添加相同的日志
+  const exists = logs.value.some(l => l.content === content && l.type === type);
+  if (!exists) {
+    logs.value.push({ time, type, content });
+    // 保持最新日志可见
+    nextTick(() => {
+      const el = document.querySelector('.terminal-content');
+      if (el) el.scrollTop = el.scrollHeight;
+    });
+  }
+};
+
+// 获取真实日志
+const fetchLogs = async () => {
+  try {
+    const res: any = await getTaskLogs(route.params.id as string);
+    if (res && res.data) {
+      // 合并日志，避免重复
+      res.data.forEach((log: any) => {
+        const content = `执行步骤 [${log.stepOrder}]: ${log.roleName}`;
+        addLog('AGENT', content);
+        // 如果有 Prompt 快照或 AI 响应，也可以考虑展示（这里先只展示摘要）
+      });
+    }
+  } catch (error) {
+    console.error('Fetch logs failed:', error);
+  }
 };
 
 const statusLogMap: Record<number, { type: string; content: string }> = {
@@ -321,15 +343,6 @@ const handleShare = async () => {
 let timer: any = null;
 
 const fetchStatus = async () => {
-  // 如果已经达到终态，不执行 fetch
-  if ([4, 5, 6, 7].includes(taskInfo.value.status)) {
-    if (timer) {
-      clearInterval(timer);
-      timer = null;
-    }
-    return;
-  }
-
   try {
     const res: any = await getTaskDetail(route.params.id as string);
     if (res && res.data) {
@@ -361,6 +374,11 @@ const fetchStatus = async () => {
           timer = null;
           console.log('Task reached final state, polling stopped.');
         }
+        // 任务完成后，额外拉取一次完整日志
+        fetchLogs();
+      } else {
+        // 进行中时，尝试拉取增量日志
+        fetchLogs();
       }
     }
   } catch (error) {
@@ -372,9 +390,16 @@ const handleRetry = async () => {
   try {
     const res = await retryTask(route.params.id as string);
     Message.success(res.msg || '任务已重启');
+    
+    // 重置本地状态，立即反馈
+    taskInfo.value.status = 0;
+    taskInfo.value.progress = 0;
     logs.value = []; // 清空日志
     addLog('SYSTEM', '用户手动发起重试，正在重新初始化...');
+    
+    // 立即执行一次 fetch，虽然可能 backend 还没更新，但为了保险
     fetchStatus();
+    
     // 重新开启定时器
     if (timer) clearInterval(timer);
     timer = setInterval(fetchStatus, 3000);

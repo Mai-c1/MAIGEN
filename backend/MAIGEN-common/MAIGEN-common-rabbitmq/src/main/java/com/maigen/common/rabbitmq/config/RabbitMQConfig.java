@@ -65,6 +65,14 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Queue logQueue() {
+        return QueueBuilder.durable(RabbitMQConstants.QUEUE_TASK_LOG)
+                .deadLetterExchange(RabbitMQConstants.EXCHANGE_TASK_DLX)
+                .deadLetterRoutingKey(RabbitMQConstants.QUEUE_TASK_DEAD)
+                .build();
+    }
+
+    @Bean
     public Queue deadQueue() {
         return new Queue(RabbitMQConstants.QUEUE_TASK_DEAD, true);
     }
@@ -89,6 +97,11 @@ public class RabbitMQConfig {
     @Bean
     public Binding bindStatus() {
         return BindingBuilder.bind(statusQueue()).to(taskExchange()).with(RabbitMQConstants.QUEUE_TASK_STATUS);
+    }
+
+    @Bean
+    public Binding bindLog() {
+        return BindingBuilder.bind(logQueue()).to(taskExchange()).with(RabbitMQConstants.QUEUE_TASK_LOG);
     }
 
     @Bean

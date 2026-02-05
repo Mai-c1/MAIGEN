@@ -69,28 +69,25 @@
             </a-col>
           </a-row>
 
-          <!-- 生成策略 -->
-          <a-card class="glass-card" title="生成策略 (多选)" :bordered="false">
-            <template #extra>
-              <a-link @click="form.strategyIds = strategies.map(s => s.id)">全选</a-link>
-            </template>
+          <!-- 生成方案 -->
+          <a-card class="glass-card" title="生成方案 (单选)" :bordered="false">
             <div class="strategy-grid">
               <div 
-                v-for="item in strategies" 
+                v-for="item in workflows" 
                 :key="item.id"
                 class="strategy-card"
-                :class="{ 'active': form.strategyIds.includes(item.id) }"
-                @click="toggleStrategy(item.id)"
+                :class="{ 'active': form.workflowId === item.id }"
+                @click="selectWorkflow(item.id)"
               >
                 <div class="strategy-icon">
-                  <component :is="getStrategyIcon(item.name)" />
+                  <component :is="getWorkflowIcon(item.name)" />
                 </div>
                 <div class="strategy-info">
                   <div class="strategy-name">{{ item.name }}</div>
                   <div class="strategy-desc">{{ item.description }}</div>
                 </div>
                 <div class="strategy-checkbox">
-                  <icon-check-circle-fill v-if="form.strategyIds.includes(item.id)" />
+                  <icon-check-circle-fill v-if="form.workflowId === item.id" />
                   <div v-else class="checkbox-placeholder"></div>
                 </div>
               </div>
@@ -158,11 +155,11 @@
                 <span class="text-[var(--mg-text-1)] font-medium">{{ form.title }}</span>
               </div>
               <div class="flex justify-between border-b border-[var(--mg-border)] pb-2">
-                <span class="text-[var(--mg-text-3)]">测试策略</span>
+                <span class="text-[var(--mg-text-3)]">生成方案</span>
                 <div class="flex flex-wrap gap-2 justify-end max-w-[70%]">
-                  <a-tag v-for="id in form.strategyIds" :key="id" color="arcoblue" size="small" class="rounded-md">
-                    <template #icon><component :is="getStrategyIcon(strategies.find(s => s.id === id)?.name)" /></template>
-                    {{ strategies.find(s => s.id === id)?.name }}
+                  <a-tag color="arcoblue" size="small" class="rounded-md">
+                    <template #icon><component :is="getWorkflowIcon('')" /></template>
+                    {{ workflows.find(s => s.id === form.workflowId)?.name }}
                   </a-tag>
                 </div>
               </div>
@@ -242,7 +239,7 @@ import {
 } from '@arco-design/web-vue/es/icon';
 import CodeEditor from '@/components/CodeEditor.vue';
 import MgMdEditor from '@/components/MgMdEditor.vue';
-import { createTask, getStrategies } from '@/api/task';
+import { createTask, getWorkflows } from '@/api/task';
 import { useAppStore } from '@/store/app';
 
 const router = useRouter();
@@ -251,34 +248,19 @@ const currentStep = ref(1);
 
 const aceTheme = computed(() => appStore.theme === 'dark' ? 'tomorrow_night' : 'github');
 const submitting = ref(false);
-const strategies = ref<any[]>([]);
+const workflows = ref<any[]>([]);
 
+// 不需要 iconMap 了，或者保留做备用
 const iconMap: Record<string, any> = {
-  '基础随机': IconApps,
-  '边界极值': IconSafe,
-  '顺序特征': IconThunderbolt,
-  '复杂度边界': IconCommand,
-  '特殊结构': IconBranch,
-  '数据分布': IconStorage,
-  '对抗性': IconBug,
-  '组合特征': IconLayers
+  // ...
 };
 
-const getStrategyIcon = (name: string) => {
-  return iconMap[name] || IconApps;
+const getWorkflowIcon = (name: string) => {
+  return IconApps; // 默认图标
 };
 
-const toggleStrategy = (id: number) => {
-  const index = form.value.strategyIds.indexOf(id);
-  if (index > -1) {
-    if (form.value.strategyIds.length > 1) {
-      form.value.strategyIds.splice(index, 1);
-    } else {
-      Message.warning('请至少保留一种测试策略');
-    }
-  } else {
-    form.value.strategyIds.push(id);
-  }
+const selectWorkflow = (id: number) => {
+  form.value.workflowId = id;
 };
 
 const STORAGE_KEY = 'maigen_task_create_form';
@@ -288,7 +270,7 @@ const form = ref({
   timeLimit: 1000,
   memoryLimit: 256,
   targetCases: 10,
-  strategyIds: [] as number[],
+  workflowId: '' as string | number,
   description: '# 题目描述\n\n## 描述\n\n请在这里输入题目的 Markdown 描述...\n\n## 输入格式\n\n...\n\n## 输出格式\n\n...',
   standardCode: '#include <iostream>\n#include <vector>\n#include <algorithm>\n\nusing namespace std;\n\nint main() {\n    // 请在此处编写标准解法\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    \n    return 0;\n}',
 });
@@ -311,14 +293,14 @@ onMounted(async () => {
   }
 
   try {
-    const res = await getStrategies();
-    strategies.value = res.data;
-    // 如果没有本地保存的策略，则默认选中第一项
-    if (strategies.value.length > 0 && form.value.strategyIds.length === 0) {
-      form.value.strategyIds = [strategies.value[0].id];
+    const res = await getWorkflows();
+    workflows.value = res.data;
+    // 如果没有本地保存的方案，则默认选中第一项
+    if (workflows.value.length > 0 && !form.value.workflowId) {
+      form.value.workflowId = workflows.value[0].id;
     }
   } catch (error) {
-    Message.error('获取策略列表失败');
+    Message.error('获取生成方案列表失败');
   }
 });
 
@@ -329,7 +311,7 @@ const handleReset = () => {
     timeLimit: 1000,
     memoryLimit: 256,
     targetCases: 10,
-    strategyIds: strategies.value.length > 0 ? [strategies.value[0].id] : [],
+    workflowId: workflows.value.length > 0 ? workflows.value[0].id : '',
     description: '# 题目描述\n\n## 描述\n\n请在这里输入题目的 Markdown 描述...\n\n## 输入格式\n\n...\n\n## 输出格式\n\n...',
     standardCode: '#include <iostream>\n#include <vector>\n#include <algorithm>\n\nusing namespace std;\n\nint main() {\n    // 请在此处编写标准解法\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    \n    return 0;\n}',
   };
@@ -343,8 +325,8 @@ const nextStep = () => {
       Message.warning('请输入题目名称');
       return;
     }
-    if (form.value.strategyIds.length === 0) {
-      Message.warning('请至少选择一种测试策略');
+    if (!form.value.workflowId) {
+      Message.warning('请选择一种生成方案');
       return;
     }
   }
@@ -360,7 +342,7 @@ const handleSubmit = async () => {
       standardCode: form.value.standardCode,
       timeLimit: form.value.timeLimit,
       memoryLimit: form.value.memoryLimit,
-      strategyIds: form.value.strategyIds,
+      workflowId: form.value.workflowId,
       testcaseCount: form.value.targetCases,
     });
     Message.success({

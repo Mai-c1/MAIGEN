@@ -14,5 +14,5 @@ public class TaskSubmitDTO implements Serializable {
     private Integer timeLimit;
     private Integer memoryLimit;
     private Integer testcaseCount;
-    private List<StrategyDTO> strategyList;
+    private Long workflowId;
 }

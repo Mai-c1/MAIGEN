@@ -19,7 +19,9 @@ export interface TaskDetail {
   testcaseCount: number;
   timeLimit: number;
   memoryLimit: number;
-  strategies: string[];
+  workflowId: string;
+  workflowName: string;
+  workflowDescription?: string;
   status: number;
   progress: number;
   errorMessage?: string;
@@ -39,8 +41,8 @@ export function createTask(data: any) {
   return request.post('/task/create', data);
 }
 
-export function getStrategies() {
-  return request.get('/task/strategies');
+export function getWorkflows() {
+  return request.get('/task/workflows');
 }
 
 export function getTaskStatus(taskId: string) {
@@ -69,4 +71,8 @@ export function cancelTask(taskId: string) {
 
 export function deleteTask(taskId: string) {
   return request.delete(`/task/${taskId}`);
+}
+
+export function getTaskLogs(taskId: string) {
+  return request.get<any[]>(`/task/logs/${taskId}`);
 }
