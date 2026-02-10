@@ -12,6 +12,40 @@
     </div>
 
     <a-tabs v-model:active-key="activeTab" type="rounded" class="custom-tabs">
+      <!-- 系统概览 -->
+      <a-tab-pane key="overview" title="系统概览">
+        <div class="grid grid-cols-4 gap-4 mb-6">
+           <div class="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 flex items-center gap-4">
+             <div class="p-3 bg-white rounded-xl shadow-sm text-blue-600"><icon-user size="24" /></div>
+             <div>
+               <div class="text-2xl font-bold text-gray-800">{{ statistics.userCount || 0 }}</div>
+               <div class="text-xs text-gray-500">总用户数</div>
+             </div>
+           </div>
+           <div class="p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border border-purple-100 flex items-center gap-4">
+             <div class="p-3 bg-white rounded-xl shadow-sm text-purple-600"><icon-command size="24" /></div>
+             <div>
+               <div class="text-2xl font-bold text-gray-800">{{ statistics.taskCount || 0 }}</div>
+               <div class="text-xs text-gray-500">累计生成任务</div>
+             </div>
+           </div>
+           <div class="p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-100 flex items-center gap-4">
+             <div class="p-3 bg-white rounded-xl shadow-sm text-green-600"><icon-file size="24" /></div>
+             <div>
+               <div class="text-2xl font-bold text-gray-800">{{ statistics.contentCount || 0 }}</div>
+               <div class="text-xs text-gray-500">社区资源总量</div>
+             </div>
+           </div>
+           <div class="p-6 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl border border-orange-100 flex items-center gap-4">
+             <div class="p-3 bg-white rounded-xl shadow-sm text-orange-600"><icon-storage size="24" /></div>
+             <div>
+               <div class="text-2xl font-bold text-gray-800">{{ statistics.pointsCirculation || 0 }}</div>
+               <div class="text-xs text-gray-500">积分流通总量</div>
+             </div>
+           </div>
+        </div>
+      </a-tab-pane>
+
       <!-- 系统配置 -->
       <a-tab-pane key="config" title="参数配置">
         <a-card :bordered="false" class="glass-card">
@@ -175,16 +209,18 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
 import { Message } from '@arco-design/web-vue';
+import { IconPlus, IconUser, IconCommand, IconFile, IconStorage } from '@arco-design/web-vue/es/icon';
 import { adminSystem } from '@/api/admin';
 import MgMdEditor from '@/components/MgMdEditor.vue';
 
 const loading = ref(false);
 const submitLoading = ref(false);
-const activeTab = ref('config');
+const activeTab = ref('overview');
 const configs = ref([]);
 const rules = ref([]);
 const pointsRecords = ref([]);
 const logs = ref([]);
+const statistics = ref({});
 
 const configModalVisible = ref(false);
 const configForm = reactive({
@@ -203,6 +239,13 @@ const fetchConfigs = async () => {
   configs.value = res.data || [];
 };
 
+const fetchStatistics = async () => {
+  try {
+    const res: any = await adminSystem.getStatistics();
+    statistics.value = res.data || {};
+  } catch (error) {}
+};
+
 const fetchRules = async () => {
   const res: any = await adminSystem.listPointsRules();
   rules.value = res.data || [];
@@ -211,8 +254,10 @@ const fetchRules = async () => {
 const fetchPointsRecords = async () => {
   loading.value = true;
   const res: any = await adminSystem.listPointsRecords({ 
-    pageNum: pointsPagination.value.current, 
-    pageSize: pointsPagination.value.pageSize 
+    page: pointsPagination.value.current, 
+    pageSize: pointsPagination.value.pageSize,
+    sortBy: 'id',
+    isAsc: false
   });
   pointsRecords.value = res.data.records || res.data.list || [];
   pointsPagination.value.total = res.data.total || 0;
@@ -222,8 +267,10 @@ const fetchPointsRecords = async () => {
 const fetchLogs = async () => {
   loading.value = true;
   const res: any = await adminSystem.listLogs({ 
-    pageNum: logPagination.value.current, 
-    pageSize: logPagination.value.pageSize 
+    page: logPagination.value.current, 
+    pageSize: logPagination.value.pageSize,
+    sortBy: 'id',
+    isAsc: false
   });
   logs.value = res.data.records || res.data.list || [];
   logPagination.value.total = res.data.total || 0;
@@ -291,6 +338,7 @@ const handleLogPageChange = (page: number) => {
 };
 
 onMounted(() => {
+  fetchStatistics();
   fetchConfigs();
   fetchRules();
   fetchPointsRecords();

@@ -84,6 +84,9 @@
             <template #cell="{ record }">
               <a-space>
                 <a-button type="text" size="small" class="rounded-lg hover:bg-primary/10" @click="handleEdit(record)">编辑</a-button>
+                <a-button type="text" size="small" class="rounded-lg hover:bg-primary/10" @click="handleViewInvitations(record)">
+                   <template #icon><icon-user-group /></template>
+                </a-button>
                 <a-button type="text" size="small" status="warning" class="rounded-lg hover:bg-warning/10" @click="handleAdjustPoints(record)">调账</a-button>
                 <a-popconfirm :content="record.status === 1 ? '确定锁定该用户？' : '确定解锁该用户？'" @ok="toggleStatus(record)">
                   <a-button type="text" :status="record.status === 1 ? 'danger' : 'success'" size="small" class="rounded-lg">
@@ -175,13 +178,42 @@
         </a-space>
       </template>
     </a-drawer>
+
+    <!-- 邀请记录抽屉 -->
+    <a-drawer
+      v-model:visible="invitationDrawer.visible"
+      title="邀请记录"
+      width="500px"
+      :footer="false"
+      class="minimal-drawer"
+    >
+      <div class="mb-6 p-4 bg-primary/5 rounded-2xl border border-primary/10">
+        <div class="text-xs text-primary mb-1">正在查看邀请记录：</div>
+        <div class="font-bold text-lg text-[var(--mg-text-1)]">{{ invitationDrawer.username }}</div>
+      </div>
+      
+      <a-table 
+        :data="invitationDrawer.list" 
+        :loading="invitationDrawer.loading" 
+        :pagination="invitationDrawer.pagination" 
+        @page-change="handleInvitationPageChange"
+        :bordered="false"
+        class="custom-table"
+      >
+        <template #columns>
+          <a-table-column title="受邀用户ID" data-index="inviteeId" />
+          <a-table-column title="受邀用户名" data-index="inviteeName" />
+          <a-table-column title="注册时间" data-index="createdAt" />
+        </template>
+      </a-table>
+    </a-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { Message } from '@arco-design/web-vue';
-import { IconPlus, IconRefresh, IconUser, IconSettings } from '@arco-design/web-vue/es/icon';
+import { IconPlus, IconRefresh, IconUser, IconSettings, IconUserGroup } from '@arco-design/web-vue/es/icon';
 import { adminUser } from '@/api/admin';
 
 const loading = ref(false);
@@ -192,13 +224,23 @@ const pagination = ref({ current: 1, pageSize: 10, total: 0 });
 
 const drawer = ref({ visible: false, title: '新增用户', form: { id: null, username: '', email: '', password: '', role: 'user' } });
 const pointsDrawer = ref({ visible: false, userId: null, username: '', form: { amount: 0, reason: '' } });
+const invitationDrawer = ref({ 
+  visible: false, 
+  userId: null, 
+  username: '', 
+  list: [], 
+  loading: false,
+  pagination: { current: 1, pageSize: 10, total: 0 } 
+});
 
 const fetchData = async () => {
   loading.value = true;
   try {
     const res: any = await adminUser.list({ 
-      pageNum: pagination.value.current, 
+      page: pagination.value.current, 
       pageSize: pagination.value.pageSize,
+      sortBy: 'id',
+      isAsc: false,
       keyword: searchKeyword.value 
     });
     list.value = res.data.records || res.data.list || [];
@@ -266,6 +308,37 @@ const handlePointsSubmit = async () => {
     pointsDrawer.value.visible = false;
     fetchData();
   } catch (error) {}
+};
+
+const handleViewInvitations = (record: any) => {
+  invitationDrawer.value.visible = true;
+  invitationDrawer.value.userId = record.id;
+  invitationDrawer.value.username = record.username;
+  invitationDrawer.value.pagination.current = 1;
+  fetchInvitations();
+};
+
+const fetchInvitations = async () => {
+  invitationDrawer.value.loading = true;
+  try {
+    const res: any = await adminUser.listInvitations({
+      userId: invitationDrawer.value.userId,
+      page: invitationDrawer.value.pagination.current,
+      pageSize: invitationDrawer.value.pagination.pageSize,
+      sortBy: 'id',
+      isAsc: false
+    });
+    invitationDrawer.value.list = res.data.records || res.data.list || [];
+    invitationDrawer.value.pagination.total = res.data.total || 0;
+  } catch (error) {
+  } finally {
+    invitationDrawer.value.loading = false;
+  }
+};
+
+const handleInvitationPageChange = (page: number) => {
+  invitationDrawer.value.pagination.current = page;
+  fetchInvitations();
 };
 
 onMounted(fetchData);

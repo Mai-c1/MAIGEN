@@ -127,7 +127,35 @@
       <div class="category-list">
         <div v-for="item in categories" :key="item.id" class="category-item group">
           <span class="text-[var(--mg-text-1)]">{{ item.name }}</span>
-          <a-button type="text" status="danger" size="small" class="opacity-0 group-hover:opacity-100 transition-opacity" @click="deleteCategory(item.id)">
+          <a-space class="opacity-0 group-hover:opacity-100 transition-opacity">
+            <a-button type="text" size="small" @click="openEditCategory(item)">
+              <template #icon><icon-edit /></template>
+            </a-button>
+            <a-button type="text" status="danger" size="small" @click="deleteCategory(item.id)">
+              <template #icon><icon-delete /></template>
+            </a-button>
+          </a-space>
+        </div>
+      </div>
+    </a-drawer>
+
+    <!-- 分类编辑弹窗 -->
+    <a-modal v-model:visible="editCategoryState.visible" title="修改分类名称" @ok="submitEditCategory" simple unmount-on-close>
+      <a-input v-model="editCategoryState.name" placeholder="请输入新的分类名称" />
+    </a-modal>
+
+    <!-- 标签管理抽屉 -->
+    <a-drawer v-model:visible="tagDrawer.visible" title="全局标签管理" width="400px" class="minimal-drawer" unmount-on-close>
+      <div class="mb-6 flex gap-2">
+        <a-input v-model="newTagName" placeholder="输入新标签名称..." class="rounded-xl" />
+        <a-button type="primary" @click="addTag" class="rounded-xl">
+          <template #icon><icon-plus /></template>
+        </a-button>
+      </div>
+      <div class="category-list">
+        <div v-for="item in tags" :key="item.id" class="category-item group">
+          <span class="text-[var(--mg-text-1)]">{{ item.name }}</span>
+          <a-button type="text" status="danger" size="small" class="opacity-0 group-hover:opacity-100 transition-opacity" @click="deleteTag(item.id)">
             <template #icon><icon-delete /></template>
           </a-button>
         </div>
@@ -147,7 +175,8 @@ import {
   IconApps, 
   IconTags,
   IconPlus,
-  IconDelete
+  IconDelete,
+  IconEdit
 } from '@arco-design/web-vue/es/icon';
 import { adminContent } from '@/api/admin';
 
@@ -160,13 +189,20 @@ const auditDrawer = ref({ visible: false, record: null, status: 'PASS', form: { 
 const categoryDrawer = ref({ visible: false });
 const categories = ref([]);
 const newCategoryName = ref('');
+const editCategoryState = ref({ visible: false, id: null, name: '' });
+
+const tagDrawer = ref({ visible: false });
+const tags = ref([]);
+const newTagName = ref('');
 
 const fetchData = async () => {
   loading.value = true;
   try {
     const res: any = await adminContent.list({ 
-      pageNum: pagination.value.current, 
+      page: pagination.value.current, 
       pageSize: pagination.value.pageSize,
+      sortBy: 'id',
+      isAsc: false,
       status: filterStatus.value
     });
     list.value = res.data.records || res.data.list || [];
@@ -233,8 +269,47 @@ const deleteCategory = async (id: number) => {
   showCategoryDrawer();
 };
 
-const showTagDrawer = () => {
-  Message.info('标签管理功能即将上线');
+const openEditCategory = (item: any) => {
+  editCategoryState.value = {
+    visible: true,
+    id: item.id,
+    name: item.name
+  };
+};
+
+const submitEditCategory = async () => {
+  if (!editCategoryState.value.name) return;
+  try {
+    await adminContent.updateCategory({
+      id: editCategoryState.value.id,
+      name: editCategoryState.value.name
+    });
+    Message.success('分类更新成功');
+    editCategoryState.value.visible = false;
+    showCategoryDrawer();
+  } catch (error) {}
+};
+
+const showTagDrawer = async () => {
+  tagDrawer.value.visible = true;
+  fetchTags();
+};
+
+const fetchTags = async () => {
+  const res: any = await adminContent.listTags();
+  tags.value = res.data || [];
+};
+
+const addTag = async () => {
+  if (!newTagName.value) return;
+  await adminContent.createTag({ name: newTagName.value });
+  newTagName.value = '';
+  fetchTags();
+};
+
+const deleteTag = async (id: number) => {
+  await adminContent.deleteTag(id);
+  fetchTags();
 };
 
 onMounted(fetchData);

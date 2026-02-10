@@ -106,8 +106,10 @@ const fetchData = async () => {
   loading.value = true;
   try {
     const params = {
-      pageNum: pagination.current,
+      page: pagination.current,
       pageSize: pagination.pageSize,
+      sortBy: 'id',
+      isAsc: false,
       ...searchForm
     };
     const res = await props.api(params);

@@ -91,10 +91,21 @@ const routes: RouteRecordRaw[] = [
             name: 'AdminLog',
             component: () => import('@/views/admin/log/index.vue'),
           },
-          // 暂时保留其他路径作为占位，后续补充
-          { path: 'content', component: () => import('@/views/admin/index.vue') }, 
-          { path: 'task', component: () => import('@/views/admin/index.vue') }, 
-          { path: 'system', component: () => import('@/views/admin/index.vue') }, 
+          { 
+            path: 'content', 
+            name: 'AdminContent',
+            component: () => import('@/views/admin/components/ContentManager.vue') 
+          },
+          { 
+            path: 'task', 
+            name: 'AdminTask',
+            component: () => import('@/views/admin/components/TaskManager.vue') 
+          },
+          { 
+            path: 'system', 
+            name: 'AdminSystem',
+            component: () => import('@/views/admin/components/SystemManager.vue') 
+          },
         ]
       },
     ],

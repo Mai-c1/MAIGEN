@@ -5,7 +5,7 @@
         <h2 class="text-2xl font-bold text-[var(--mg-text-1)]">任务监控</h2>
         <p class="text-[var(--mg-text-3)] text-sm">全站 AI 生成任务运行状态及资源消耗审计</p>
       </div>
-      <a-button type="outline" size="large" class="rounded-xl" disabled>
+      <a-button type="outline" size="large" class="rounded-xl" @click="router.push('/admin/workflow')">
         <template #icon><icon-command /></template>
         方案管理
       </a-button>
@@ -147,6 +147,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, h } from 'vue';
+import { useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import { 
   IconRefresh, 
@@ -159,6 +160,7 @@ import {
 } from '@arco-design/web-vue/es/icon';
 import { adminTask } from '@/api/admin';
 
+const router = useRouter();
 const loading = ref(false);
 const list = ref([]);
 const searchKeyword = ref('');
@@ -171,8 +173,10 @@ const fetchData = async () => {
   loading.value = true;
   try {
     const res: any = await adminTask.list({ 
-      pageNum: pagination.value.current, 
+      page: pagination.value.current, 
       pageSize: pagination.value.pageSize,
+      sortBy: 'id',
+      isAsc: false,
       keyword: searchKeyword.value,
       status: filterStatus.value
     });

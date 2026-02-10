@@ -482,7 +482,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task>
         // 2. 查询日志
         return taskExecutionLogService.lambdaQuery()
                 .eq(com.maigen.api.entity.TaskExecutionLog::getTaskId, taskId)
-                .orderByAsc(com.maigen.api.entity.TaskExecutionLog::getStepOrder)
+                .orderByAsc(com.maigen.api.entity.TaskExecutionLog::getId)
                 .list();
     }
 }
